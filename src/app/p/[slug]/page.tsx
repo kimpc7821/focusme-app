@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { mockPagesBySlug } from "@/lib/mock/noeul";
+import { getPageBySlug } from "@/lib/db/pages";
 import { BlockRenderer } from "@/components/blocks/BlockRenderer";
 import type { Metadata } from "next";
 
@@ -11,7 +11,7 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const data = mockPagesBySlug[slug];
+  const data = await getPageBySlug(slug);
   if (!data) return { title: "페이지를 찾을 수 없습니다 | FocusMe" };
   const headerBlock = data.blocks.find((b) => b.blockType === "profile_header");
   const headerContent = headerBlock?.content as
@@ -25,7 +25,7 @@ export async function generateMetadata({
 
 export default async function PublicPage({ params }: PageProps) {
   const { slug } = await params;
-  const data = mockPagesBySlug[slug];
+  const data = await getPageBySlug(slug);
   if (!data) notFound();
 
   const sortedBlocks = [...data.blocks].sort(
