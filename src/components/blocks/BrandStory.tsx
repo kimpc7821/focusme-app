@@ -3,6 +3,7 @@ import type {
   BrandStoryConfig,
   BrandStoryContent,
 } from "@/lib/types";
+import { SectionTitle } from "./SectionTitle";
 
 type Props = Block<BrandStoryConfig, BrandStoryContent>;
 
@@ -16,9 +17,7 @@ export function BrandStory({ config, content }: Props) {
     <section className="px-5 py-7">
       <div className={`${widthClass} mx-auto ${alignClass}`}>
         {content.title && (
-          <h2 className="text-[17px] font-medium leading-tight text-fg mb-3">
-            {content.title}
-          </h2>
+          <SectionTitle title={content.title} className="mb-4" />
         )}
         <div className="space-y-3 text-[13px] leading-relaxed text-fg-secondary">
           {paragraphs.map((p, i) => (

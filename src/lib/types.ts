@@ -16,7 +16,8 @@ export type BusinessType =
 
 export type BlockType =
   | "profile_header"
-  | "business_info"
+  | "location_info"
+  | "legal_footer"
   | "floating_cta"
   | "phone_button"
   | "kakao_channel"
@@ -30,6 +31,8 @@ export type BlockType =
   | "contact_form"
   | "map"
   | "faq";
+
+export type ProductKind = "candle" | "diffuser" | "plant" | "incense" | "default";
 
 export interface Block<TConfig = unknown, TContent = unknown> {
   id: string;
@@ -119,24 +122,33 @@ export interface ProductCardsContent {
     imageUrl?: string;
     url?: string;
     badge?: string;
+    badgeKind?: "best" | "new" | "limited" | "default";
     available?: boolean;
+    /** 이미지가 없을 때 카드 fallback 비주얼 키 */
+    fallbackKind?: ProductKind;
   }>;
 }
 
-export interface BusinessInfoConfig {
+export interface BusinessHours {
+  weekdays?: string;
+  saturday?: string;
+  sunday?: string;
+  holiday?: string;
+  note?: string;
+}
+
+export interface LocationInfoConfig {
+  layout: "map_top" | "info_top" | "no_map";
   showMap: boolean;
   showHours: boolean;
   showAddress: boolean;
-  showBusinessNumber: boolean;
+  showActionButtons: boolean;
+  mapHeight: "small" | "medium" | "large";
 }
-export interface BusinessInfoContent {
-  hours?: {
-    weekdays?: string;
-    saturday?: string;
-    sunday?: string;
-    holiday?: string;
-    note?: string;
-  };
+export interface LocationInfoContent {
+  sectionTitle?: string;
+  sectionSubtitle?: string;
+  hours?: BusinessHours;
   address?: {
     full: string;
     detail?: string;
@@ -145,7 +157,21 @@ export interface BusinessInfoContent {
   };
   phone?: string;
   email?: string;
+  kakao?: string;
+  directionsUrl?: string;
+}
+
+export interface LegalFooterConfig {
+  showBusinessNumber: boolean;
+  showEcommerceLicense: boolean;
+  showCopyright: boolean;
+}
+export interface LegalFooterContent {
+  businessName?: string;
   businessNumber?: string;
+  ecommerceLicense?: string;
+  privacyOfficer?: string;
+  copyrightYear?: number;
 }
 
 export interface FloatingCtaConfig {

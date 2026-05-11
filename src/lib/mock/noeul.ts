@@ -3,6 +3,7 @@ import type { PageWithBlocks } from "@/lib/types";
 /**
  * Mock 페이지 — 노을공방 (D2C 핸드메이드 캔들 브랜드).
  * 실제 API: GET /p/:slug 가 반환할 페이로드 형태와 동일.
+ * 와이어프레임 (스크린샷/와이어프레임1~3.jpg) 기준.
  */
 export const noeulPage: PageWithBlocks = {
   page: {
@@ -28,11 +29,9 @@ export const noeulPage: PageWithBlocks = {
         logoShape: "rounded",
       },
       content: {
-        logoUrl:
-          "https://images.unsplash.com/photo-1602874801006-8cf12c4afc5d?w=200&h=200&fit=crop",
+        logoUrl: "",
         title: "노을공방",
         tagline: "하루의 끝, 향으로 안식을",
-        badge: undefined,
       },
     },
     {
@@ -53,15 +52,17 @@ export const noeulPage: PageWithBlocks = {
       content: {
         slides: [
           {
-            imageUrl:
-              "https://images.unsplash.com/photo-1602874801006-8cf12c4afc5d?w=1200&h=1500&fit=crop",
+            imageUrl: "",
             title: "노을의 향",
             subtitle: "당신의 하루 끝에 머무는",
           },
           {
-            imageUrl:
-              "https://images.unsplash.com/photo-1608181831718-c9ffd8728107?w=1200&h=1500&fit=crop",
+            imageUrl: "",
             title: "손으로 빚은 안식",
+          },
+          {
+            imageUrl: "",
+            title: "매일의 작은 의식",
           },
         ],
       },
@@ -103,32 +104,30 @@ export const noeulPage: PageWithBlocks = {
           {
             name: "노을캔들 250g",
             price: "38,000원",
-            imageUrl:
-              "https://images.unsplash.com/photo-1603006905003-be475563bc59?w=600&h=600&fit=crop",
             url: "https://example.com/noeul-candle",
             badge: "베스트",
+            badgeKind: "best",
+            fallbackKind: "candle",
           },
           {
             name: "별빛 디퓨저 100ml",
             price: "45,000원",
-            imageUrl:
-              "https://images.unsplash.com/photo-1602874801006-8cf12c4afc5d?w=600&h=600&fit=crop",
             url: "https://example.com/star-diffuser",
+            fallbackKind: "diffuser",
           },
           {
             name: "안식 캔들 120g",
             price: "24,000원",
-            imageUrl:
-              "https://images.unsplash.com/photo-1608181831718-c9ffd8728107?w=600&h=600&fit=crop",
             url: "https://example.com/calm-candle",
+            fallbackKind: "plant",
           },
           {
             name: "여명 인센스 스틱",
             price: "18,000원",
-            imageUrl:
-              "https://images.unsplash.com/photo-1602874801006-8cf12c4afc5d?w=600&h=600&fit=crop",
             url: "https://example.com/dawn-incense",
             badge: "신규",
+            badgeKind: "new",
+            fallbackKind: "incense",
           },
         ],
       },
@@ -136,37 +135,62 @@ export const noeulPage: PageWithBlocks = {
     {
       id: "blk_005",
       pageId: "page_noeul_001",
-      blockType: "business_info",
-      sortOrder: 5,
+      blockType: "location_info",
+      sortOrder: 80,
       isEnabled: true,
-      isSystem: true,
+      isSystem: false,
       config: {
-        showMap: false,
+        layout: "map_top",
+        showMap: true,
         showHours: true,
         showAddress: true,
-        showBusinessNumber: true,
+        showActionButtons: true,
+        mapHeight: "medium",
       },
       content: {
+        sectionTitle: "오시는 길",
+        sectionSubtitle: "언제든 들러주세요",
         hours: {
           weekdays: "10:00 ~ 18:00",
-          saturday: "10:00 ~ 16:00",
+          saturday: "10:00 ~ 17:00",
           sunday: "휴무",
           note: "공휴일 휴무",
         },
         address: {
           full: "서울시 마포구 연남동 123-45",
-          detail: "2층",
+          detail: "노을빌딩 2층",
+          latitude: 37.5611,
+          longitude: 126.9234,
         },
         phone: "02-1234-5678",
-        email: "owner@noeul.example",
-        businessNumber: "123-45-67890",
+        kakao: "https://pf.kakao.com/_example",
+        directionsUrl:
+          "https://map.naver.com/p/search/노을공방",
       },
     },
     {
       id: "blk_006",
       pageId: "page_noeul_001",
+      blockType: "legal_footer",
+      sortOrder: 95,
+      isEnabled: true,
+      isSystem: true,
+      config: {
+        showBusinessNumber: true,
+        showEcommerceLicense: true,
+        showCopyright: true,
+      },
+      content: {
+        businessName: "노을공방",
+        businessNumber: "123-45-67890",
+        ecommerceLicense: "제 2026-서울마포-1234호",
+      },
+    },
+    {
+      id: "blk_007",
+      pageId: "page_noeul_001",
       blockType: "floating_cta",
-      sortOrder: 6,
+      sortOrder: 99,
       isEnabled: true,
       isSystem: true,
       config: {

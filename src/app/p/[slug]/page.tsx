@@ -33,9 +33,12 @@ export default async function PublicPage({ params }: PageProps) {
   );
 
   return (
-    <div data-tone={data.page.toneKey} className="min-h-full w-full bg-bg-soft">
-      {/* 데스크탑에서 모바일 mockup처럼 가운데 정렬 */}
-      <div className="mx-auto w-full max-w-[480px] bg-bg shadow-sm relative min-h-screen">
+    <div
+      data-tone={data.page.toneKey}
+      className="min-h-full w-full bg-bg-soft"
+    >
+      {/* 모바일: 풀폭 / 데스크탑: 가운데 정렬 + 외곽 라운드 카드 */}
+      <div className="mx-auto w-full max-w-[480px] bg-bg relative min-h-screen md:min-h-0 md:my-6 md:rounded-[24px] md:overflow-hidden md:shadow-[0_8px_32px_rgba(0,0,0,0.08)]">
         {sortedBlocks.map((block) => (
           <BlockRenderer key={block.id} block={block} />
         ))}

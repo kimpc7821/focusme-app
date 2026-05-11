@@ -7,19 +7,13 @@ import type {
 type Props = Block<FloatingCtaConfig, FloatingCtaContent>;
 
 const sizeClass: Record<FloatingCtaConfig["buttonSize"], string> = {
-  small: "w-11 h-11 text-[11px]",
-  medium: "w-13 h-13 text-[12px]",
-  large: "w-15 h-15 text-[13px]",
-};
-
-const positionClass: Record<FloatingCtaConfig["position"], string> = {
-  right_bottom: "right-4 bottom-4 items-end",
-  left_bottom: "left-4 bottom-4 items-start",
+  small: "w-11 h-11",
+  medium: "w-13 h-13",
+  large: "w-15 h-15",
 };
 
 function buttonHref(type: string, value: string): string {
   if (type === "phone") return `tel:${value}`;
-  if (type === "kakao" || type === "external") return value;
   if (type === "message") return `sms:${value}`;
   return value;
 }
@@ -28,8 +22,8 @@ function buttonIcon(type: string) {
   if (type === "phone") {
     return (
       <svg
-        width="20"
-        height="20"
+        width="22"
+        height="22"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -41,11 +35,10 @@ function buttonIcon(type: string) {
       </svg>
     );
   }
-  // kakao / message / external — 동일한 chat 아이콘
   return (
     <svg
-      width="20"
-      height="20"
+      width="22"
+      height="22"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -59,15 +52,27 @@ function buttonIcon(type: string) {
 }
 
 export function FloatingCta({ config, content }: Props) {
+  const isRight = config.position === "right_bottom";
+  // 컨테이너 max-w 480px 안쪽 16px에 위치하도록 viewport 기준 계산.
+  // viewport >= 480 → 컨테이너 우측 가장자리 (= 50vw + 240) 안쪽 16px → right = 50vw - 224
+  // viewport <  480 → 컨테이너 == viewport, 그냥 16px
+  const sideOffset = "max(16px, calc(50vw - 224px))";
+
   return (
     <div
-      className={`fixed z-50 flex flex-col gap-2 ${positionClass[config.position]}`}
+      className="fixed z-50 flex flex-col gap-2"
+      style={{
+        bottom: "16px",
+        [isRight ? "right" : "left"]: sideOffset,
+      }}
     >
       {content.buttons.map((btn, i) => (
         <a
           key={i}
           href={buttonHref(btn.type, btn.value)}
-          target={btn.type === "kakao" || btn.type === "external" ? "_blank" : undefined}
+          target={
+            btn.type === "kakao" || btn.type === "external" ? "_blank" : undefined
+          }
           rel="noopener noreferrer"
           aria-label={btn.label}
           className={`${sizeClass[config.buttonSize]} rounded-full flex items-center justify-center bg-[var(--brand-primary)] text-[var(--brand-primary-text)] shadow-lg active:scale-95 transition-transform`}
