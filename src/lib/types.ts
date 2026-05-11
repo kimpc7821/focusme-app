@@ -175,7 +175,11 @@ export interface LegalFooterContent {
 }
 
 export interface FloatingCtaConfig {
-  position: "right_bottom" | "left_bottom";
+  position:
+    | "right_bottom"
+    | "left_bottom"
+    | "right_middle"
+    | "left_middle";
   buttonSize: "small" | "medium" | "large";
   showOnScroll: boolean;
 }

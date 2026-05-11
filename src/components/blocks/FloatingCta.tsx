@@ -52,17 +52,24 @@ function buttonIcon(type: string) {
 }
 
 export function FloatingCta({ config, content }: Props) {
-  const isRight = config.position === "right_bottom";
+  const isRight =
+    config.position === "right_bottom" || config.position === "right_middle";
+  const isMiddle =
+    config.position === "right_middle" || config.position === "left_middle";
   // 컨테이너 max-w 480px 안쪽 16px에 위치하도록 viewport 기준 계산.
   // viewport >= 480 → 컨테이너 우측 가장자리 (= 50vw + 240) 안쪽 16px → right = 50vw - 224
   // viewport <  480 → 컨테이너 == viewport, 그냥 16px
   const sideOffset = "max(16px, calc(50vw - 224px))";
 
+  const positionStyle: React.CSSProperties = isMiddle
+    ? { top: "50%", transform: "translateY(-50%)" }
+    : { bottom: "16px" };
+
   return (
     <div
       className="fixed z-50 flex flex-col gap-2"
       style={{
-        bottom: "16px",
+        ...positionStyle,
         [isRight ? "right" : "left"]: sideOffset,
       }}
     >

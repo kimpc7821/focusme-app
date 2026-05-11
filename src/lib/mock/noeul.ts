@@ -194,7 +194,7 @@ export const noeulPage: PageWithBlocks = {
       isEnabled: true,
       isSystem: true,
       config: {
-        position: "right_bottom",
+        position: "right_middle",
         buttonSize: "medium",
         showOnScroll: false,
       },
