@@ -43,6 +43,30 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["blocks"]["Row"]>;
         Relationships: [];
       };
+      events: {
+        Row: {
+          id: string;
+          page_id: string;
+          block_id: string | null;
+          event_type: string;
+          target: string | null;
+          session_id: string | null;
+          utm_source: string | null;
+          utm_medium: string | null;
+          utm_campaign: string | null;
+          utm_content: string | null;
+          utm_term: string | null;
+          referrer: string | null;
+          device: string | null;
+          user_agent: string | null;
+          country: string | null;
+          ip_hash: string | null;
+          ts: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["events"]["Row"]>;
+        Update: Partial<Database["public"]["Tables"]["events"]["Row"]>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;

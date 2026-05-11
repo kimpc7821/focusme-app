@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { getPageBySlug } from "@/lib/db/pages";
 import { BlockRenderer } from "@/components/blocks/BlockRenderer";
+import { Tracker } from "@/components/Tracker";
 import type { Metadata } from "next";
 
 interface PageProps {
@@ -42,6 +43,7 @@ export default async function PublicPage({ params }: PageProps) {
         {sortedBlocks.map((block) => (
           <BlockRenderer key={block.id} block={block} />
         ))}
+        <Tracker pageId={data.page.id} />
       </div>
     </div>
   );
