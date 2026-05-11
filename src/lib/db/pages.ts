@@ -3,8 +3,9 @@ import { createServerSupabase } from "@/lib/supabase/server";
 import { mockPagesBySlug } from "@/lib/mock/noeul";
 
 /**
- * 환경변수가 있으면 Supabase에서, 없으면 mock에서 페이지를 가져옴.
- * 마이그레이션·시드 완료 후 환경변수 채우면 자동으로 DB 사용.
+ * 환경변수 있으면 Supabase 우선, DB 결과 없으면 mock fallback.
+ * env 없으면 곧장 mock.
+ * → 마이그레이션·시드 끝나기 전에도 페이지가 깨지지 않게.
  */
 export async function getPageBySlug(
   slug: string,
@@ -13,6 +14,14 @@ export async function getPageBySlug(
     return mockPagesBySlug[slug] ?? null;
   }
 
+  const fromDb = await fetchFromSupabase(slug);
+  if (fromDb) return fromDb;
+  return mockPagesBySlug[slug] ?? null;
+}
+
+async function fetchFromSupabase(
+  slug: string,
+): Promise<PageWithBlocks | null> {
   const supabase = createServerSupabase();
   const { data: page, error: pageError } = await supabase
     .from("pages")
