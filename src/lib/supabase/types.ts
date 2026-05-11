@@ -43,6 +43,47 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["blocks"]["Row"]>;
         Relationships: [];
       };
+      lookup_block_types: {
+        Row: {
+          key: string;
+          name: string;
+          category: string;
+          is_system: boolean;
+          required_assets: unknown;
+          layout_options: unknown;
+          default_config: unknown;
+          default_content: unknown;
+          display_order: number;
+        };
+        Insert: Partial<Database["public"]["Tables"]["lookup_block_types"]["Row"]>;
+        Update: Partial<Database["public"]["Tables"]["lookup_block_types"]["Row"]>;
+        Relationships: [];
+      };
+      lookup_templates: {
+        Row: {
+          key: string;
+          name: string;
+          description: string | null;
+          default_blocks: unknown;
+          recommended_tone: string | null;
+          display_order: number;
+        };
+        Insert: Partial<Database["public"]["Tables"]["lookup_templates"]["Row"]>;
+        Update: Partial<Database["public"]["Tables"]["lookup_templates"]["Row"]>;
+        Relationships: [];
+      };
+      lookup_tone_presets: {
+        Row: {
+          key: string;
+          name: string;
+          description: string | null;
+          preview: unknown;
+          display_order: number;
+        };
+        Insert: Partial<Database["public"]["Tables"]["lookup_tone_presets"]["Row"]>;
+        Update: Partial<Database["public"]["Tables"]["lookup_tone_presets"]["Row"]>;
+        Relationships: [];
+      };
       events: {
         Row: {
           id: string;
