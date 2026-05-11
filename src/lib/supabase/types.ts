@@ -84,6 +84,35 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["lookup_tone_presets"]["Row"]>;
         Relationships: [];
       };
+      admins: {
+        Row: {
+          id: string;
+          email: string;
+          name: string;
+          role: string;
+          password_hash: string;
+          active: boolean;
+          last_login_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["admins"]["Row"]>;
+        Update: Partial<Database["public"]["Tables"]["admins"]["Row"]>;
+        Relationships: [];
+      };
+      refresh_tokens: {
+        Row: {
+          jti: string;
+          actor_type: string;
+          actor_id: string;
+          expires_at: string;
+          revoked: boolean;
+          created_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["refresh_tokens"]["Row"]>;
+        Update: Partial<Database["public"]["Tables"]["refresh_tokens"]["Row"]>;
+        Relationships: [];
+      };
       events: {
         Row: {
           id: string;
