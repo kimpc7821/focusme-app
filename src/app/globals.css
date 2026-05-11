@@ -1,26 +1,219 @@
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css");
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* ============================================================
+   FocusMe Design Tokens
+   reference: /docs/focusme-design-system.md
+   ============================================================ */
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+:root {
+  /* Text */
+  --color-text-primary: #2c2c2a;
+  --color-text-secondary: #73726c;
+  --color-text-tertiary: #9c9a92;
+  --color-text-inverse: #ffffff;
+
+  /* Background */
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #f5f4ed;
+  --color-bg-tertiary: #eceae0;
+
+  /* Border */
+  --color-border-primary: #3d3d3a;
+  --color-border-secondary: #c2c0b6;
+  --color-border-tertiary: #dddbcf;
+
+  /* Info */
+  --color-info-text: #185fa5;
+  --color-info-bg: #e6f1fb;
+  --color-info-border: #b5d4f4;
+
+  /* Success */
+  --color-success-text: #0f6e56;
+  --color-success-bg: #e1f5ee;
+  --color-success-strong: #1d9e75;
+
+  /* Warning */
+  --color-warning-text: #854f0b;
+  --color-warning-bg: #faeeda;
+  --color-warning-strong: #ef9f27;
+
+  /* Danger */
+  --color-danger-text: #a32d2d;
+  --color-danger-bg: #fcebeb;
+  --color-danger-strong: #d44545;
+
+  /* AI */
+  --color-ai-text: #3c3489;
+  --color-ai-bg: #eeedfe;
+  --color-ai-border: #afa9ec;
+  --color-ai-strong: #534ab7;
+
+  /* Spacing (4px base grid) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* Radius */
+  --radius-sm: 4px;
+  --radius-base: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 14px;
+  --radius-2xl: 22px;
+  --radius-full: 999px;
+
+  /* Shadow */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.12);
+  --shadow-modal: 0 20px 40px rgba(0, 0, 0, 0.15);
+
+  /* Default brand tone (warm_minimal) — overridden by [data-tone] */
+  --brand-primary: #ef9f27;
+  --brand-primary-text: #ffffff;
+  --brand-accent: #fac775;
+  --brand-light: #faeeda;
+  --brand-tint: rgba(239, 159, 39, 0.15);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --color-text-primary: #e5e3d9;
+    --color-text-secondary: #b3b1a6;
+    --color-text-tertiary: #807e73;
+    --color-text-inverse: #1e1e1b;
+
+    --color-bg-primary: #1e1e1b;
+    --color-bg-secondary: #2b2b27;
+    --color-bg-tertiary: #38382f;
+
+    --color-border-primary: #c2c0b6;
+    --color-border-secondary: #5c5b53;
+    --color-border-tertiary: #38382f;
+
+    --color-info-text: #7bb3e8;
+    --color-info-bg: #1a2f44;
+    --color-info-border: #2a4f7a;
+
+    --color-success-text: #6ddbb5;
+    --color-success-bg: #1a3d32;
+    --color-success-strong: #34ba8e;
+
+    --color-warning-text: #fac775;
+    --color-warning-bg: #3d2e15;
+    --color-warning-strong: #fac775;
+
+    --color-danger-text: #f58484;
+    --color-danger-bg: #3d1e1e;
+    --color-danger-strong: #e66666;
+
+    --color-ai-text: #cecbf6;
+    --color-ai-bg: #2a2654;
+    --color-ai-border: #6660c2;
+    --color-ai-strong: #8e86e3;
   }
 }
 
+/* ============================================================
+   Brand tone library (5 presets) — applied per page via [data-tone]
+   ============================================================ */
+
+[data-tone="warm_minimal"] {
+  --brand-primary: #ef9f27;
+  --brand-primary-text: #ffffff;
+  --brand-accent: #fac775;
+  --brand-light: #faeeda;
+  --brand-tint: rgba(239, 159, 39, 0.15);
+}
+
+[data-tone="cool_modern"] {
+  --brand-primary: #185fa5;
+  --brand-primary-text: #ffffff;
+  --brand-accent: #4c8bc9;
+  --brand-light: #e6f1fb;
+  --brand-tint: rgba(24, 95, 165, 0.15);
+}
+
+[data-tone="premium_dark"] {
+  --brand-primary: #2c2c2a;
+  --brand-primary-text: #f5f4ed;
+  --brand-accent: #5c5b53;
+  --brand-light: #eceae0;
+  --brand-tint: rgba(44, 44, 42, 0.15);
+}
+
+[data-tone="soft_pastel"] {
+  --brand-primary: #d4537e;
+  --brand-primary-text: #ffffff;
+  --brand-accent: #e58aac;
+  --brand-light: #fbeaf0;
+  --brand-tint: rgba(212, 83, 126, 0.15);
+}
+
+[data-tone="vivid_bold"] {
+  --brand-primary: #dc2626;
+  --brand-primary-text: #ffffff;
+  --brand-accent: #f87171;
+  --brand-light: #fee2e2;
+  --brand-tint: rgba(220, 38, 38, 0.15);
+}
+
+/* ============================================================
+   Expose tokens to Tailwind utilities (text-fg, bg-soft, etc.)
+   ============================================================ */
+
+@theme inline {
+  --color-fg: var(--color-text-primary);
+  --color-fg-secondary: var(--color-text-secondary);
+  --color-fg-tertiary: var(--color-text-tertiary);
+  --color-fg-inverse: var(--color-text-inverse);
+
+  --color-bg: var(--color-bg-primary);
+  --color-bg-soft: var(--color-bg-secondary);
+  --color-bg-muted: var(--color-bg-tertiary);
+
+  --color-border-default: var(--color-border-tertiary);
+  --color-border-strong: var(--color-border-primary);
+
+  --color-info: var(--color-info-text);
+  --color-info-soft: var(--color-info-bg);
+  --color-success: var(--color-success-strong);
+  --color-success-soft: var(--color-success-bg);
+  --color-warning: var(--color-warning-strong);
+  --color-warning-soft: var(--color-warning-bg);
+  --color-danger: var(--color-danger-strong);
+  --color-danger-soft: var(--color-danger-bg);
+  --color-ai: var(--color-ai-strong);
+  --color-ai-soft: var(--color-ai-bg);
+  --color-ai-text-token: var(--color-ai-text);
+
+  --color-brand: var(--brand-primary);
+  --color-brand-text: var(--brand-primary-text);
+  --color-brand-accent: var(--brand-accent);
+  --color-brand-light: var(--brand-light);
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --radius-2xl: var(--radius-2xl);
+
+  --font-sans: "Pretendard Variable", "Pretendard", -apple-system,
+    BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  font-family: "Pretendard Variable", "Pretendard", -apple-system,
+    BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
