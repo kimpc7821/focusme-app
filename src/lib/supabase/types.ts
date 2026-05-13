@@ -125,6 +125,26 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["work_tasks"]["Row"]>;
         Relationships: [];
       };
+      reports: {
+        Row: {
+          id: string;
+          client_id: string;
+          page_id: string | null;
+          period_start: string;
+          period_end: string;
+          data_snapshot: Record<string, unknown>;
+          ai_insight: string | null;
+          pdf_url: string | null;
+          status: string;
+          sent_at: string | null;
+          sent_via: string | null;
+          sent_to: string | null;
+          created_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["reports"]["Row"]>;
+        Update: Partial<Database["public"]["Tables"]["reports"]["Row"]>;
+        Relationships: [];
+      };
       assets: {
         Row: {
           id: string;

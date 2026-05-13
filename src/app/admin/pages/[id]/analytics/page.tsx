@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { getPageAnalytics } from "@/lib/db/analytics";
+import { createReportAction } from "@/app/admin/_actions/reports";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -88,35 +89,52 @@ export default async function AnalyticsPage({ params, searchParams }: Props) {
             /{page.slug} · {fmtDay(from)} ~ {fmtDay(to)}
           </p>
         </div>
-        <form
-          method="get"
-          className="flex items-center gap-2 text-[12px] text-fg-secondary"
-        >
-          <label className="flex items-center gap-1">
-            from
-            <input
-              type="date"
-              name="from"
-              defaultValue={fmtDay(from)}
-              className="px-2 py-1 rounded border border-border-default bg-bg text-fg"
-            />
-          </label>
-          <label className="flex items-center gap-1">
-            to
-            <input
-              type="date"
-              name="to"
-              defaultValue={fmtDay(to)}
-              className="px-2 py-1 rounded border border-border-default bg-bg text-fg"
-            />
-          </label>
-          <button
-            type="submit"
-            className="px-3 py-1 rounded bg-info text-fg-inverse hover:opacity-90"
+        <div className="flex items-center gap-2">
+          <form
+            method="get"
+            className="flex items-center gap-2 text-[12px] text-fg-secondary"
           >
-            조회
-          </button>
-        </form>
+            <label className="flex items-center gap-1">
+              from
+              <input
+                type="date"
+                name="from"
+                defaultValue={fmtDay(from)}
+                className="px-2 py-1 rounded border border-border-default bg-bg text-fg"
+              />
+            </label>
+            <label className="flex items-center gap-1">
+              to
+              <input
+                type="date"
+                name="to"
+                defaultValue={fmtDay(to)}
+                className="px-2 py-1 rounded border border-border-default bg-bg text-fg"
+              />
+            </label>
+            <button
+              type="submit"
+              className="px-3 py-1 rounded bg-info text-fg-inverse hover:opacity-90"
+            >
+              조회
+            </button>
+          </form>
+          <form action={createReportAction}>
+            <input type="hidden" name="pageId" value={id} />
+            <input type="hidden" name="periodStart" value={fmtDay(from)} />
+            <input type="hidden" name="periodEnd" value={fmtDay(to)} />
+            <button
+              type="submit"
+              className="px-3 py-1.5 rounded-md text-[12px] font-medium hover:opacity-90"
+              style={{
+                background: "var(--color-ai-strong)",
+                color: "white",
+              }}
+            >
+              ✦ 이 기간으로 리포트 생성
+            </button>
+          </form>
+        </div>
       </div>
 
       {/* KPI 카드 */}
