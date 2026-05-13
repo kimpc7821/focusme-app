@@ -214,21 +214,25 @@ export function ContactForm({ id: blockId, pageId, config, content }: Props) {
           </p>
         )}
 
-        <button
-          type="submit"
-          disabled={status === "submitting"}
-          className={`py-3 rounded-md font-medium text-[14px] transition-opacity hover:opacity-90 disabled:opacity-50 ${
+        <div
+          className={`flex justify-center pt-1 ${
             config.layout === "two_column" ? "sm:col-span-2" : ""
           }`}
-          style={{
-            background: "var(--brand-primary)",
-            color: "var(--brand-primary-text)",
-          }}
         >
-          {status === "submitting"
-            ? "보내는 중..."
-            : content.submitLabel || "보내기"}
-        </button>
+          <button
+            type="submit"
+            disabled={status === "submitting"}
+            className="px-10 py-2.5 rounded-md font-medium text-[13px] transition-opacity hover:opacity-90 disabled:opacity-50"
+            style={{
+              background: "var(--brand-primary)",
+              color: "var(--brand-primary-text)",
+            }}
+          >
+            {status === "submitting"
+              ? "보내는 중..."
+              : content.submitLabel || "보내기"}
+          </button>
+        </div>
       </form>
     </section>
   );
