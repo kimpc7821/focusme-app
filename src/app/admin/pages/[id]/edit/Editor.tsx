@@ -10,6 +10,7 @@ import {
 } from "../../../_actions/blocks";
 import { deleteAssetAction } from "../../../_actions/assets";
 import { hasStructuredForm, StructuredBlockForm } from "./forms";
+import { AiRegenerateModal } from "./AiRegenerateModal";
 
 interface BlockRow {
   id: string;
@@ -282,6 +283,8 @@ function BlockEditor({
     }
   };
 
+  const [showAi, setShowAi] = useState(false);
+
   return (
     <div className="flex flex-col h-full">
       <div className="flex items-center justify-between mb-4 gap-3">
@@ -293,6 +296,18 @@ function BlockEditor({
           </p>
         </div>
         <div className="flex items-center gap-3 shrink-0">
+          <button
+            type="button"
+            onClick={() => setShowAi(true)}
+            className="px-2.5 py-1 rounded text-[11px] font-medium hover:opacity-90"
+            style={{
+              background: "var(--color-ai-bg)",
+              color: "var(--color-ai-text)",
+              border: "0.5px solid var(--color-ai-border)",
+            }}
+          >
+            ✦ AI 재생성
+          </button>
           {structured && (
             <div className="flex items-center rounded border border-border-default overflow-hidden text-[11px]">
               <button
@@ -372,6 +387,15 @@ function BlockEditor({
           {pending ? "저장 중..." : "저장"}
         </button>
       </div>
+
+      {showAi && (
+        <AiRegenerateModal
+          pageId={pageId}
+          blockId={block.id}
+          blockType={block.block_type}
+          onClose={() => setShowAi(false)}
+        />
+      )}
     </div>
   );
 }
