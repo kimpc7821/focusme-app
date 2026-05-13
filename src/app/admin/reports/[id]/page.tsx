@@ -89,14 +89,28 @@ export default async function ReportDetailPage({ params }: Props) {
             {report.status}
           </p>
         </div>
-        {report.page_id && (
-          <Link
-            href={`/admin/pages/${report.page_id}/analytics?from=${report.period_start}&to=${report.period_end}`}
-            className="text-[12px] text-info hover:underline"
+        <div className="flex items-center gap-2">
+          {report.page_id && (
+            <Link
+              href={`/admin/pages/${report.page_id}/analytics?from=${report.period_start}&to=${report.period_end}`}
+              className="text-[12px] text-info hover:underline"
+            >
+              ← 분석 페이지로
+            </Link>
+          )}
+          <a
+            href={`/api/v1/admin/reports/${report.id}/pdf`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-3 py-1.5 rounded-md text-[12px] font-medium hover:opacity-90"
+            style={{
+              background: "var(--brand-primary)",
+              color: "var(--brand-primary-text)",
+            }}
           >
-            ← 분석 페이지로
-          </Link>
-        )}
+            ↓ PDF 다운로드
+          </a>
+        </div>
       </div>
 
       {/* AI 인사이트 */}
