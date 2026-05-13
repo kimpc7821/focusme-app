@@ -84,6 +84,62 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["lookup_tone_presets"]["Row"]>;
         Relationships: [];
       };
+      clients: {
+        Row: {
+          id: string;
+          phone: string;
+          kakao_id: string | null;
+          email: string | null;
+          business_name: string;
+          business_type: string;
+          signup_date: string;
+          status: string;
+          payment_status: string;
+          invoice_number: string | null;
+          invoiced_at: string | null;
+          paid_at: string | null;
+          payment_amount: number | null;
+          created_at: string;
+          updated_at: string;
+          notes: string | null;
+        };
+        Insert: Partial<Database["public"]["Tables"]["clients"]["Row"]>;
+        Update: Partial<Database["public"]["Tables"]["clients"]["Row"]>;
+        Relationships: [];
+      };
+      work_tasks: {
+        Row: {
+          id: string;
+          page_id: string;
+          status: string;
+          assignee_id: string | null;
+          notes: string | null;
+          ai_generated_at: string | null;
+          reviewed_at: string | null;
+          preview_sent_at: string | null;
+          completed_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["work_tasks"]["Row"]>;
+        Update: Partial<Database["public"]["Tables"]["work_tasks"]["Row"]>;
+        Relationships: [];
+      };
+      assets: {
+        Row: {
+          id: string;
+          page_id: string;
+          block_id: string | null;
+          category: string;
+          url: string;
+          meta: Record<string, unknown>;
+          uploaded_at: string;
+          created_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["assets"]["Row"]>;
+        Update: Partial<Database["public"]["Tables"]["assets"]["Row"]>;
+        Relationships: [];
+      };
       admins: {
         Row: {
           id: string;
