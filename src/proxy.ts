@@ -8,8 +8,10 @@ const SECRET = new TextEncoder().encode(process.env.JWT_SECRET ?? "");
  * /admin/* 진입 시 admin access cookie 검증.
  *   - 토큰 없음 / 검증 실패 / role 불일치 → /admin/login 으로 redirect.
  *   - /admin/login 자체는 예외.
+ *
+ * Next 16에서 middleware → proxy 로 컨벤션 변경.
  */
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname;
   if (path === "/admin/login") return NextResponse.next();
 
