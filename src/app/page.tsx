@@ -44,6 +44,20 @@ const DEMOS: DemoPage[] = [
     toneKey: "vivid_bold",
     toneColor: "#DC2626",
   },
+  {
+    slug: "hanyeoldang",
+    title: "한열당 한의원",
+    businessType: "한의원",
+    toneKey: "warm_minimal",
+    toneColor: "#EF9F27",
+  },
+  {
+    slug: "park-laborlaw",
+    title: "박정현 노무사",
+    businessType: "1인 전문직 (노무)",
+    toneKey: "cool_modern",
+    toneColor: "#185FA5",
+  },
 ];
 
 export default function Home() {
@@ -60,7 +74,7 @@ export default function Home() {
 
       <section className="mt-10">
         <h2 className="text-[10px] uppercase tracking-wider text-fg-tertiary mb-3 font-medium">
-          데모 페이지 · 5톤 라이브러리 검증
+          데모 페이지 · 7업종 · 5톤 라이브러리
         </h2>
         <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {DEMOS.map((d) => (
