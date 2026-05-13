@@ -11,6 +11,12 @@ import { ProductCardsForm } from "./ProductCardsForm";
 import { GalleryGridForm } from "./GalleryGridForm";
 import { ReviewsForm } from "./ReviewsForm";
 import { InstagramEmbedForm } from "./InstagramEmbedForm";
+import { PhoneButtonForm } from "./PhoneButtonForm";
+import { KakaoChannelForm } from "./KakaoChannelForm";
+import { SnsButtonsForm } from "./SnsButtonsForm";
+import { ContactFormForm } from "./ContactFormForm";
+import { MapForm } from "./MapForm";
+import { FaqForm } from "./FaqForm";
 
 const REGISTRY: Record<string, React.ComponentType<BlockFormProps>> = {
   profile_header: ProfileHeaderForm,
@@ -23,6 +29,12 @@ const REGISTRY: Record<string, React.ComponentType<BlockFormProps>> = {
   gallery_grid: GalleryGridForm,
   reviews: ReviewsForm,
   instagram_embed: InstagramEmbedForm,
+  phone_button: PhoneButtonForm,
+  kakao_channel: KakaoChannelForm,
+  sns_buttons: SnsButtonsForm,
+  contact_form: ContactFormForm,
+  map: MapForm,
+  faq: FaqForm,
 };
 
 export function hasStructuredForm(blockType: string): boolean {
