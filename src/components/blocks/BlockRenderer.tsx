@@ -6,31 +6,32 @@ import { ProductCards } from "./ProductCards";
 import { LocationInfo } from "./LocationInfo";
 import { LegalFooter } from "./LegalFooter";
 import { FloatingCta } from "./FloatingCta";
+import { PhoneButton } from "./PhoneButton";
+import { KakaoChannel } from "./KakaoChannel";
+import { SnsButtons } from "./SnsButtons";
+import { GalleryGrid } from "./GalleryGrid";
+import { Reviews } from "./Reviews";
+import { Faq } from "./Faq";
 
-const registry: Partial<
-  Record<BlockType, React.ComponentType<Block<never, never>>>
-> = {
-  profile_header: ProfileHeader as unknown as React.ComponentType<
-    Block<never, never>
-  >,
-  hero_carousel: HeroCarousel as unknown as React.ComponentType<
-    Block<never, never>
-  >,
-  brand_story: BrandStory as unknown as React.ComponentType<
-    Block<never, never>
-  >,
-  product_cards: ProductCards as unknown as React.ComponentType<
-    Block<never, never>
-  >,
-  location_info: LocationInfo as unknown as React.ComponentType<
-    Block<never, never>
-  >,
-  legal_footer: LegalFooter as unknown as React.ComponentType<
-    Block<never, never>
-  >,
-  floating_cta: FloatingCta as unknown as React.ComponentType<
-    Block<never, never>
-  >,
+type AnyBlockComponent = React.ComponentType<Block<never, never>>;
+
+const cast = <C, T>(c: React.ComponentType<Block<C, T>>) =>
+  c as unknown as AnyBlockComponent;
+
+const registry: Partial<Record<BlockType, AnyBlockComponent>> = {
+  profile_header: cast(ProfileHeader),
+  hero_carousel: cast(HeroCarousel),
+  brand_story: cast(BrandStory),
+  product_cards: cast(ProductCards),
+  location_info: cast(LocationInfo),
+  legal_footer: cast(LegalFooter),
+  floating_cta: cast(FloatingCta),
+  phone_button: cast(PhoneButton),
+  kakao_channel: cast(KakaoChannel),
+  sns_buttons: cast(SnsButtons),
+  gallery_grid: cast(GalleryGrid),
+  reviews: cast(Reviews),
+  faq: cast(Faq),
 };
 
 export function BlockRenderer({ block }: { block: Block }) {
