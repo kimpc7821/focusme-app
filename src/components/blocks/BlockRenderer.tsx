@@ -12,6 +12,9 @@ import { SnsButtons } from "./SnsButtons";
 import { GalleryGrid } from "./GalleryGrid";
 import { Reviews } from "./Reviews";
 import { Faq } from "./Faq";
+import { Map } from "./Map";
+import { InstagramEmbed } from "./InstagramEmbed";
+import { ContactForm } from "./ContactForm";
 
 type AnyBlockComponent = React.ComponentType<Block<never, never>>;
 
@@ -32,6 +35,9 @@ const registry: Partial<Record<BlockType, AnyBlockComponent>> = {
   gallery_grid: cast(GalleryGrid),
   reviews: cast(Reviews),
   faq: cast(Faq),
+  map: cast(Map),
+  instagram_embed: cast(InstagramEmbed),
+  contact_form: cast(ContactForm),
 };
 
 export function BlockRenderer({ block }: { block: Block }) {
