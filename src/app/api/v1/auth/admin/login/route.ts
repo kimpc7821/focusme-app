@@ -1,8 +1,17 @@
 import { NextResponse } from "next/server";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { verifyPassword } from "@/lib/auth/passwords";
-import { signAccessToken, signRefreshToken } from "@/lib/auth/jwt";
+import {
+  signAccessToken,
+  signRefreshToken,
+  TOKEN_EXPIRES,
+} from "@/lib/auth/jwt";
 import { persistRefreshToken } from "@/lib/auth/refresh-tokens";
+import {
+  ACCESS_COOKIE,
+  REFRESH_COOKIE,
+  buildCookieOptions,
+} from "@/lib/auth/cookies";
 
 interface Body {
   email?: string;
@@ -88,7 +97,7 @@ export async function POST(request: Request) {
     .update({ last_login_at: new Date().toISOString() })
     .eq("id", admin.id);
 
-  return NextResponse.json({
+  const response = NextResponse.json({
     data: {
       accessToken,
       refreshToken: refresh.token,
@@ -100,4 +109,15 @@ export async function POST(request: Request) {
       },
     },
   });
+  response.cookies.set(
+    ACCESS_COOKIE,
+    accessToken,
+    buildCookieOptions(TOKEN_EXPIRES.access),
+  );
+  response.cookies.set(
+    REFRESH_COOKIE,
+    refresh.token,
+    buildCookieOptions(TOKEN_EXPIRES.refresh),
+  );
+  return response;
 }
