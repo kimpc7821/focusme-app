@@ -9,6 +9,7 @@ import {
   moveBlockAction,
 } from "../../../_actions/blocks";
 import { deleteAssetAction } from "../../../_actions/assets";
+import { hasStructuredForm, StructuredBlockForm } from "./forms";
 
 interface BlockRow {
   id: string;
@@ -106,6 +107,7 @@ export function Editor({
             key={selected.id}
             pageId={pageId}
             block={selected}
+            assets={assets}
             onDeleted={() => setSelectedId(null)}
           />
         ) : (
@@ -208,12 +210,18 @@ function BlockListItem({
 function BlockEditor({
   pageId,
   block,
+  assets,
   onDeleted,
 }: {
   pageId: string;
   block: BlockRow;
+  assets: AssetRow[];
   onDeleted: () => void;
 }) {
+  const structured = hasStructuredForm(block.block_type);
+  const [mode, setMode] = useState<"form" | "json">(structured ? "form" : "json");
+  const [config, setConfig] = useState<Record<string, unknown>>(block.config);
+  const [content, setContent] = useState<Record<string, unknown>>(block.content);
   const [configJson, setConfigJson] = useState(
     JSON.stringify(block.config, null, 2),
   );
@@ -227,12 +235,16 @@ function BlockEditor({
 
   const save = () => {
     setError(null);
+    const cfgJson =
+      mode === "form" ? JSON.stringify(config) : configJson;
+    const cntJson =
+      mode === "form" ? JSON.stringify(content) : contentJson;
     startTransition(async () => {
       const r = await updateBlockAction(
         pageId,
         block.id,
-        configJson,
-        contentJson,
+        cfgJson,
+        cntJson,
         isEnabled,
       );
       if (r.error) setError(r.error);
@@ -253,34 +265,92 @@ function BlockEditor({
     });
   };
 
+  const switchToJson = () => {
+    setConfigJson(JSON.stringify(config, null, 2));
+    setContentJson(JSON.stringify(content, null, 2));
+    setMode("json");
+  };
+  const switchToForm = () => {
+    try {
+      setConfig(JSON.parse(configJson));
+      setContent(JSON.parse(contentJson));
+      setMode("form");
+    } catch (e) {
+      setError(`JSON 파싱 오류 — form 으로 전환할 수 없습니다: ${
+        e instanceof Error ? e.message : String(e)
+      }`);
+    }
+  };
+
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center justify-between mb-4">
-        <div>
+      <div className="flex items-center justify-between mb-4 gap-3">
+        <div className="min-w-0">
           <h2 className="text-[15px] font-medium text-fg">{block.block_type}</h2>
           <p className="text-[11px] text-fg-tertiary">
             sort_order: {block.sort_order}
             {block.is_system && " · 시스템 블록"}
           </p>
         </div>
-        <label className="flex items-center gap-2 text-[12px] text-fg">
-          <input
-            type="checkbox"
-            checked={isEnabled}
-            onChange={(e) => setIsEnabled(e.target.checked)}
-          />
-          활성화
-        </label>
+        <div className="flex items-center gap-3 shrink-0">
+          {structured && (
+            <div className="flex items-center rounded border border-border-default overflow-hidden text-[11px]">
+              <button
+                type="button"
+                onClick={mode === "form" ? undefined : switchToForm}
+                className={`px-2.5 py-1 ${
+                  mode === "form"
+                    ? "bg-info text-fg-inverse"
+                    : "bg-bg text-fg-secondary hover:bg-bg-soft"
+                }`}
+              >
+                Form
+              </button>
+              <button
+                type="button"
+                onClick={mode === "json" ? undefined : switchToJson}
+                className={`px-2.5 py-1 ${
+                  mode === "json"
+                    ? "bg-info text-fg-inverse"
+                    : "bg-bg text-fg-secondary hover:bg-bg-soft"
+                }`}
+              >
+                JSON
+              </button>
+            </div>
+          )}
+          <label className="flex items-center gap-2 text-[12px] text-fg">
+            <input
+              type="checkbox"
+              checked={isEnabled}
+              onChange={(e) => setIsEnabled(e.target.checked)}
+            />
+            활성화
+          </label>
+        </div>
       </div>
 
-      <JsonField label="config" value={configJson} onChange={setConfigJson} />
-      <div className="h-3" />
-      <JsonField
-        label="content"
-        value={contentJson}
-        onChange={setContentJson}
-        rows={12}
-      />
+      {mode === "form" && structured ? (
+        <StructuredBlockForm
+          blockType={block.block_type}
+          config={config}
+          content={content}
+          onConfig={setConfig}
+          onContent={setContent}
+          assets={assets}
+        />
+      ) : (
+        <>
+          <JsonField label="config" value={configJson} onChange={setConfigJson} />
+          <div className="h-3" />
+          <JsonField
+            label="content"
+            value={contentJson}
+            onChange={setContentJson}
+            rows={12}
+          />
+        </>
+      )}
 
       {error && <p className="mt-3 text-[11px] text-danger">⚠ {error}</p>}
 
