@@ -145,6 +145,23 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["reports"]["Row"]>;
         Relationships: [];
       };
+      qr_codes: {
+        Row: {
+          id: string;
+          page_id: string;
+          channel_name: string;
+          utm_source: string | null;
+          utm_medium: string | null;
+          utm_campaign: string | null;
+          target_url: string;
+          image_url: string;
+          svg_url: string | null;
+          created_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["qr_codes"]["Row"]>;
+        Update: Partial<Database["public"]["Tables"]["qr_codes"]["Row"]>;
+        Relationships: [];
+      };
       assets: {
         Row: {
           id: string;

@@ -81,12 +81,20 @@ export function StatusActions({
         편집기 열기
       </a>
       {isPublished && (
-        <a
-          href={`/admin/pages/${pageId}/analytics`}
-          className="px-3 py-1.5 rounded-md border border-border-default text-fg text-[12px] hover:bg-bg-soft"
-        >
-          분석 보기
-        </a>
+        <>
+          <a
+            href={`/admin/pages/${pageId}/analytics`}
+            className="px-3 py-1.5 rounded-md border border-border-default text-fg text-[12px] hover:bg-bg-soft"
+          >
+            분석 보기
+          </a>
+          <a
+            href={`/admin/pages/${pageId}/qr`}
+            className="px-3 py-1.5 rounded-md border border-border-default text-fg text-[12px] hover:bg-bg-soft"
+          >
+            QR 코드
+          </a>
+        </>
       )}
       {isPublished ? (
         <a
