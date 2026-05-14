@@ -87,11 +87,11 @@ export type Database = {
       clients: {
         Row: {
           id: string;
-          phone: string;
+          phone: string | null;
           kakao_id: string | null;
           email: string | null;
-          business_name: string;
-          business_type: string;
+          business_name: string | null;
+          business_type: string | null;
           signup_date: string;
           status: string;
           payment_status: string;
@@ -204,6 +204,39 @@ export type Database = {
         };
         Insert: Partial<Database["public"]["Tables"]["refresh_tokens"]["Row"]>;
         Update: Partial<Database["public"]["Tables"]["refresh_tokens"]["Row"]>;
+        Relationships: [];
+      };
+      change_requests: {
+        Row: {
+          id: string;
+          page_id: string;
+          request_type: string;
+          description: string;
+          status: string;
+          quoted_cost: number | null;
+          quoted_at: string | null;
+          completed_at: string | null;
+          notes: string | null;
+          submitted_at: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["change_requests"]["Row"]>;
+        Update: Partial<Database["public"]["Tables"]["change_requests"]["Row"]>;
+        Relationships: [];
+      };
+      sms_verifications: {
+        Row: {
+          id: string;
+          phone: string;
+          code_hash: string;
+          expires_at: string;
+          attempts: number;
+          consumed_at: string | null;
+          created_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["sms_verifications"]["Row"]>;
+        Update: Partial<Database["public"]["Tables"]["sms_verifications"]["Row"]>;
         Relationships: [];
       };
       events: {

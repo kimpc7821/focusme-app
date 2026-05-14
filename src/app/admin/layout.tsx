@@ -29,6 +29,24 @@ export default async function AdminLayout({
                   작업 큐
                 </Link>
                 <Link
+                  href="/admin/clients"
+                  className="text-fg-secondary hover:text-fg"
+                >
+                  클라이언트
+                </Link>
+                <Link
+                  href="/admin/change-requests"
+                  className="text-fg-secondary hover:text-fg"
+                >
+                  변경 요청
+                </Link>
+                <Link
+                  href="/admin/reports"
+                  className="text-fg-secondary hover:text-fg"
+                >
+                  리포트
+                </Link>
+                <Link
                   href="/admin/pages/new"
                   className="text-fg-secondary hover:text-fg"
                 >

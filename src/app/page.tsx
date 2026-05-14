@@ -101,17 +101,23 @@ export default function Home() {
         </ul>
       </section>
 
-      <section className="mt-10">
-        <h2 className="text-[10px] uppercase tracking-wider text-fg-tertiary mb-3 font-medium">
-          관리자
-        </h2>
+      <section className="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <Link
+          href="/login"
+          className="block px-4 py-3 rounded-md border border-border-default bg-bg hover:bg-bg-soft transition-colors"
+        >
+          <div className="text-[13px] font-medium text-fg">사장님 로그인</div>
+          <div className="mt-1 text-[11px] text-fg-tertiary">
+            내 페이지 · 자료 수정 · QR 발급
+          </div>
+        </Link>
         <Link
           href="/admin/tasks"
           className="block px-4 py-3 rounded-md border border-border-default bg-bg hover:bg-bg-soft transition-colors"
         >
           <div className="text-[13px] font-medium text-fg">FocusMe Admin</div>
           <div className="mt-1 text-[11px] text-fg-tertiary">
-            작업 큐 · 페이지 편집기 · AI 재생성 (로그인 필요)
+            작업 큐 · 페이지 편집기 · AI 재생성
           </div>
         </Link>
       </section>
