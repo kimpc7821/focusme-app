@@ -28,7 +28,7 @@ export function GalleryGridForm({
 }: BlockFormProps) {
   const layout = (config.layout as Layout) ?? "grid_2col";
   const aspectRatio = (config.aspectRatio as AspectRatio) ?? "square";
-  const showCaption = (config.showCaption as boolean) ?? false;
+  const showCaption = (config.showCaption as boolean) ?? true;
   const enableLightbox = (config.enableLightbox as boolean) ?? true;
 
   const title = (content.title as string) ?? "";

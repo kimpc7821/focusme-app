@@ -1,7 +1,14 @@
 "use client";
 
 import type { BlockFormProps } from "./types";
-import { Field, Section, Select, TextInput, Toggle } from "./inputs";
+import {
+  EssentialManagedField,
+  Field,
+  Section,
+  Select,
+  TextInput,
+  Toggle,
+} from "./inputs";
 
 type Size = "medium" | "large";
 type Layout = "fullwidth" | "inline";
@@ -11,25 +18,23 @@ export function PhoneButtonForm({
   content,
   onConfig,
   onContent,
+  essentialInfo,
 }: BlockFormProps) {
   const size = (config.size as Size) ?? "medium";
   const layout = (config.layout as Layout) ?? "fullwidth";
   const showIcon = (config.showIcon as boolean) ?? true;
 
-  const phone = (content.phone as string) ?? "";
   const label = (content.label as string) ?? "";
   const subtext = (content.subtext as string) ?? "";
 
   return (
     <div className="space-y-6">
       <Section title="콘텐츠">
-        <Field label="전화번호">
-          <TextInput
-            value={phone}
-            onChange={(v) => onContent({ ...content, phone: v })}
-            placeholder="02-1234-5678"
-          />
-        </Field>
+        <EssentialManagedField
+          label="전화번호"
+          value={essentialInfo?.phone}
+          note="essential_info.phone 자동 주입"
+        />
         <Field label="라벨 (선택)" hint="기본: 전화하기">
           <TextInput
             value={label}

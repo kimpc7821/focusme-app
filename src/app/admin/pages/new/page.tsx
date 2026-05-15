@@ -17,11 +17,11 @@ export default async function NewPagePage() {
   return (
     <div className="max-w-2xl mx-auto px-6 py-8">
       <h1 className="text-[22px] font-medium text-fg leading-tight">
-        새 페이지 만들기
+        클라이언트 등록
       </h1>
       <p className="mt-1 text-[12px] text-fg-tertiary">
-        결제 확인 후 클라이언트 + 페이지를 생성합니다. 빈 페이지(draft)로
-        시작하고 편집기에서 블록을 추가합니다.
+        사장님 정보를 입력하면 클라이언트 + 페이지 + 작업이 한 번에 생성되고,
+        로그인용 임시 비밀번호가 발급됩니다.
       </p>
 
       <div className="mt-6 bg-bg rounded-lg border border-border-default p-6">

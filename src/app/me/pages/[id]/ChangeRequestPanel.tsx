@@ -125,10 +125,10 @@ export function ChangeRequestPanel({
         </div>
 
         {err && (
-          <p className="mt-2 text-[11px] text-danger">⚠ {err}</p>
+          <p className="mt-2 text-[11px] text-danger">{err}</p>
         )}
         {savedMsg && (
-          <p className="mt-2 text-[11px] text-success">✓ {savedMsg}</p>
+          <p className="mt-2 text-[11px] text-success">{savedMsg}</p>
         )}
 
         <button
@@ -174,7 +174,7 @@ export function ChangeRequestPanel({
                   </p>
                   {r.quoted_cost != null && (
                     <p className="mt-2 text-[11px] text-info">
-                      💰 견적: {r.quoted_cost.toLocaleString()}원
+                      견적: {r.quoted_cost.toLocaleString()}원
                     </p>
                   )}
                   {r.notes && (

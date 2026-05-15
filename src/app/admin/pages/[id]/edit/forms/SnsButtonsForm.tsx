@@ -11,6 +11,7 @@ type SnsType =
   | "youtube"
   | "tiktok"
   | "naver_place"
+  | "naver_cafe"
   | "smartstore"
   | "website"
   | "custom";
@@ -73,6 +74,7 @@ export function SnsButtonsForm({
                   { value: "youtube", label: "YouTube" },
                   { value: "tiktok", label: "TikTok" },
                   { value: "naver_place", label: "네이버 플레이스" },
+                  { value: "naver_cafe", label: "네이버 카페" },
                   { value: "smartstore", label: "스마트스토어" },
                   { value: "website", label: "웹사이트" },
                   { value: "custom", label: "커스텀" },

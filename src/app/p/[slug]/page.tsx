@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getPageBySlug } from "@/lib/db/pages";
 import { BlockRenderer } from "@/components/blocks/BlockRenderer";
 import { Tracker } from "@/components/Tracker";
+import { resolveBlocksWithEssential } from "@/lib/services/resolve-essential";
 import type { Metadata } from "next";
 
 interface PageProps {
@@ -14,13 +15,12 @@ export async function generateMetadata({
   const { slug } = await params;
   const data = await getPageBySlug(slug);
   if (!data) return { title: "페이지를 찾을 수 없습니다 | FocusMe" };
-  const headerBlock = data.blocks.find((b) => b.blockType === "profile_header");
-  const headerContent = headerBlock?.content as
-    | { title?: string; tagline?: string }
-    | undefined;
+  const essential = data.page.essentialInfo ?? {};
+  const title = essential.businessName ?? data.page.businessName;
+  const description = essential.tagline;
   return {
-    title: `${headerContent?.title ?? data.page.businessName} | FocusMe`,
-    description: headerContent?.tagline,
+    title: `${title} | FocusMe`,
+    description,
   };
 }
 
@@ -29,7 +29,13 @@ export default async function PublicPage({ params }: PageProps) {
   const data = await getPageBySlug(slug);
   if (!data) notFound();
 
-  const sortedBlocks = [...data.blocks].sort(
+  // v2: essential_info 단방향 주입 — 시스템·숨김 블록(6종)에 자동 반영.
+  const resolvedBlocks = resolveBlocksWithEssential(
+    data.blocks,
+    data.page.essentialInfo ?? {},
+  );
+
+  const sortedBlocks = [...resolvedBlocks].sort(
     (a, b) => a.sortOrder - b.sortOrder,
   );
 

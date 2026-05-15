@@ -47,7 +47,7 @@ function redirectToLogin(request: NextRequest, loginPath: string) {
   const url = request.nextUrl.clone();
   url.pathname = loginPath;
   url.search = "";
-  url.searchParams.set("from", request.nextUrl.pathname);
+  url.searchParams.set("next", request.nextUrl.pathname);
   return NextResponse.redirect(url);
 }
 

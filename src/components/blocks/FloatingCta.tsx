@@ -52,6 +52,8 @@ function buttonIcon(type: string) {
 }
 
 export function FloatingCta({ config, content }: Props) {
+  const buttons = content.buttons ?? [];
+  if (buttons.length === 0) return null;
   const isRight =
     config.position === "right_bottom" || config.position === "right_middle";
   const isMiddle =
@@ -73,7 +75,7 @@ export function FloatingCta({ config, content }: Props) {
         [isRight ? "right" : "left"]: sideOffset,
       }}
     >
-      {content.buttons.map((btn, i) => (
+      {buttons.map((btn, i) => (
         <a
           key={i}
           href={buttonHref(btn.type, btn.value)}

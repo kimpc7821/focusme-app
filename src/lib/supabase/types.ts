@@ -21,6 +21,8 @@ export type Database = {
           archived_at: string | null;
           created_at: string;
           updated_at: string;
+          /** v2: essential_info — 페이지 레벨 필수 정보 (resolve-essential.ts 참조) */
+          essential_info: Record<string, unknown>;
         };
         Insert: Partial<Database["public"]["Tables"]["pages"]["Row"]>;
         Update: Partial<Database["public"]["Tables"]["pages"]["Row"]>;
@@ -54,6 +56,8 @@ export type Database = {
           default_config: unknown;
           default_content: unknown;
           display_order: number;
+          /** v2: 사용 중단 시점. NULL 아니면 신규 페이지 default_blocks 에서 제외. */
+          deprecated_at: string | null;
         };
         Insert: Partial<Database["public"]["Tables"]["lookup_block_types"]["Row"]>;
         Update: Partial<Database["public"]["Tables"]["lookup_block_types"]["Row"]>;
@@ -65,6 +69,8 @@ export type Database = {
           name: string;
           description: string | null;
           default_blocks: unknown;
+          /** v2: 사장님 Step 0 "추가 가능" 목록 */
+          recommended_optional_blocks: unknown;
           recommended_tone: string | null;
           display_order: number;
         };
@@ -102,6 +108,8 @@ export type Database = {
           created_at: string;
           updated_at: string;
           notes: string | null;
+          password_hash: string | null;
+          must_change_password: boolean;
         };
         Insert: Partial<Database["public"]["Tables"]["clients"]["Row"]>;
         Update: Partial<Database["public"]["Tables"]["clients"]["Row"]>;
@@ -118,6 +126,8 @@ export type Database = {
           reviewed_at: string | null;
           preview_sent_at: string | null;
           completed_at: string | null;
+          /** v2: 사장님 "이대로 발행" 1탭 시점 */
+          client_approved_at: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -223,6 +233,30 @@ export type Database = {
         };
         Insert: Partial<Database["public"]["Tables"]["change_requests"]["Row"]>;
         Update: Partial<Database["public"]["Tables"]["change_requests"]["Row"]>;
+        Relationships: [];
+      };
+      rate_limits: {
+        Row: {
+          id: number;
+          key: string;
+          hit_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["rate_limits"]["Row"]>;
+        Update: Partial<Database["public"]["Tables"]["rate_limits"]["Row"]>;
+        Relationships: [];
+      };
+      inquiries: {
+        Row: {
+          id: string;
+          business_name: string;
+          phone: string;
+          message: string;
+          status: string;
+          created_at: string;
+          handled_at: string | null;
+        };
+        Insert: Partial<Database["public"]["Tables"]["inquiries"]["Row"]>;
+        Update: Partial<Database["public"]["Tables"]["inquiries"]["Row"]>;
         Relationships: [];
       };
       sms_verifications: {

@@ -215,6 +215,107 @@ ${input.topTargets.map((t) => `- ${t.target}: ${t.clicks}회`).join("\n") || "- 
   };
 }
 
+/**
+ * v2: 사장님 Step 1·2 의 AI 보강 — 1회 호출 3개 제안.
+ *
+ * tagline: 한 줄 카피 다듬기 (입력 → 3가지 표현 제안)
+ * story: 브랜드 스토리 풀어쓰기 (한 줄 → 3가지 한 문단 제안)
+ *
+ * Haiku 사용 — 페이지·필드별 1회 rate limit (라우트에서 처리).
+ * reference: docs/focusme-flow-simplification-guide-v2.md §7 + §5.1
+ */
+export interface SuggestInput {
+  field: "tagline" | "story";
+  input: string;
+  businessName: string;
+  businessType: string;
+  toneKey: string | null;
+}
+
+export interface SuggestResult {
+  suggestions: string[];
+  tokensUsed: { input: number; output: number };
+  costKrw: number;
+}
+
+export async function suggestCopy(input: SuggestInput): Promise<SuggestResult> {
+  const tone = input.toneKey
+    ? `${input.toneKey} (${TONE_GUIDE[input.toneKey] ?? "기본"})`
+    : "warm_minimal (따뜻하고 간결)";
+
+  const userMessage =
+    input.field === "tagline"
+      ? `한국 SMB 사장님의 모바일 페이지 한 줄 카피를 다듬어주세요.
+
+[업체]
+- ${input.businessName} (${input.businessType})
+
+[현재 입력]
+"${input.input.trim() || "(빈 상태)"}"
+
+[톤]
+${tone}
+
+다른 표현 3개를 제안해주세요.
+- 각 15자 이내, 자연스러운 한국어
+- 외국어 직역체·과한 카피 X
+- 응답은 JSON 한 줄: {"suggestions":["A","B","C"]}`
+      : `한국 SMB 사장님의 브랜드 스토리를 풀어써주세요.
+
+[업체]
+- ${input.businessName} (${input.businessType})
+
+[사장님이 적은 한 줄·키워드]
+"${input.input.trim() || "(빈 상태)"}"
+
+[톤]
+${tone}
+
+위 키워드를 살려서 한 문단(150~250자)으로 풀어쓴 버전을 3가지 제안해주세요.
+- 톤만 약간 다르게 (감성·실용·신뢰 중 골고루 분포)
+- 사장님 입력에 없는 사실(상품·가격·연락처) 지어내지 말 것
+- 응답은 JSON 한 줄: {"suggestions":["...","...","..."]}`;
+
+  const response = await getClient().messages.create({
+    model: HAIKU_MODEL,
+    max_tokens: 1024,
+    messages: [{ role: "user", content: userMessage }],
+  });
+
+  const text = response.content
+    .filter((b): b is Anthropic.TextBlock => b.type === "text")
+    .map((b) => b.text)
+    .join("\n")
+    .trim();
+
+  const parsed = extractJson(text);
+  const suggestions = Array.isArray(
+    (parsed as { suggestions?: unknown })?.suggestions,
+  )
+    ? ((parsed as { suggestions: unknown[] }).suggestions
+        .filter((s): s is string => typeof s === "string" && s.trim().length > 0)
+        .slice(0, 3))
+    : [];
+
+  if (suggestions.length === 0) {
+    throw new Error(
+      `AI 응답에서 suggestions 를 찾을 수 없습니다. 응답: ${text.slice(0, 200)}`,
+    );
+  }
+
+  const usage = response.usage;
+  const costUsd =
+    (usage.input_tokens * HAIKU_INPUT_PER_M +
+      usage.output_tokens * HAIKU_OUTPUT_PER_M) /
+    1_000_000;
+
+  return {
+    suggestions,
+    tokensUsed: { input: usage.input_tokens, output: usage.output_tokens },
+    costKrw: Math.round(costUsd * USD_TO_KRW * 10) / 10,
+  };
+}
+
 function extractJson(text: string): Record<string, unknown> | null {
   // 1) ```json ... ``` 코드 블록 우선
   const fence = text.match(/```(?:json)?\s*([\s\S]*?)```/);

@@ -9,6 +9,10 @@ import {
   classifyUpdates,
   type BlockUpdate,
 } from "@/lib/services/auto-reflect";
+import {
+  notifyAdminClientSelfEdit,
+  notifyClientContentUpdated,
+} from "@/lib/notifications";
 
 interface Params {
   params: Promise<{ id: string }>;
@@ -127,7 +131,12 @@ export async function PATCH(request: Request, { params }: Params) {
           code: "INVALID_CHANGE",
           message: "이 변경은 자동 반영이 불가합니다. 문의해주세요.",
           details: {
-            allowedFields: ["content.*", "config.layout", "config.options"],
+            allowedFields: [
+              "content.*",
+              "config.layout",
+              "config.options",
+              "isEnabled (비시스템 블록만)",
+            ],
             rejectedFields: verdict.rejected,
           },
         },
@@ -137,11 +146,77 @@ export async function PATCH(request: Request, { params }: Params) {
   }
 
   const supabase = createServerSupabase();
+
+  // v2: isEnabled 변경 시도가 시스템 블록 대상이면 사전 거부
+  // (auto-reflect 가 silently skip 하지만 사용자에게 명확한 피드백 주기 위함)
+  const enableUpdates = updates.filter(
+    (u) => typeof u.isEnabled === "boolean",
+  );
+  if (enableUpdates.length > 0) {
+    const { data: targetBlocks } = await supabase
+      .from("blocks")
+      .select("id, is_system")
+      .in(
+        "id",
+        enableUpdates.map((u) => u.id),
+      )
+      .eq("page_id", pageId);
+    const systemViolations = (targetBlocks ?? [])
+      .filter((b) => b.is_system)
+      .map((b) => b.id);
+    if (systemViolations.length > 0) {
+      return NextResponse.json(
+        {
+          error: {
+            code: "INVALID_CHANGE",
+            message: "시스템 블록은 끌 수 없습니다.",
+            details: { systemBlockIds: systemViolations },
+          },
+        },
+        { status: 400 },
+      );
+    }
+  }
   const { appliedPaths, appliedAt } = await applyAutoUpdates(
     supabase,
     pageId,
     updates,
   );
+
+  // 알림: 양쪽에게 (사장님 확인 + 직원 사후 검토).
+  // 발행 전 (submit 단계 토글·자료 수정) 은 알림 발사 X — 운영 중 자체 수정만 해당.
+  // 변경된 필드 path 들을 한 줄 요약으로 (예: "메인 이미지·캡션 외 2건").
+  // 실패해도 자동 반영 자체엔 영향 X.
+  if (owns.status === "published") {
+    try {
+      const { data: client } = await supabase
+        .from("clients")
+        .select("phone, business_name")
+        .eq("id", auth.sub)
+        .maybeSingle();
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
+      const pageUrl = `${baseUrl}/p/${owns.slug}`;
+      const editUrl = `${baseUrl}/me/pages/${pageId}/edit`;
+      const changeType = summarizeChanges(appliedPaths);
+
+      if (client) {
+        await notifyClientContentUpdated({
+          clientPhone: client.phone,
+          businessName: client.business_name ?? owns.slug,
+          changeType,
+          pageUrl,
+          editUrl,
+        });
+        await notifyAdminClientSelfEdit({
+          businessName: client.business_name ?? owns.slug,
+          changeType,
+          pageUrl,
+        });
+      }
+    } catch (err) {
+      console.warn("[notify] me PATCH 알림 실패:", err);
+    }
+  }
 
   return NextResponse.json({
     data: {
@@ -150,4 +225,17 @@ export async function PATCH(request: Request, { params }: Params) {
       changesApplied: appliedPaths,
     },
   });
+}
+
+function summarizeChanges(paths: string[]): string {
+  if (paths.length === 0) return "(빈 변경)";
+  if (paths.length === 1) return shortLabel(paths[0]);
+  const first = shortLabel(paths[0]);
+  return `${first} 외 ${paths.length - 1}건`;
+}
+
+function shortLabel(path: string): string {
+  // "blocks.<uuid>.content.tagline" → "tagline"
+  const parts = path.split(".");
+  return parts[parts.length - 1] ?? path;
 }

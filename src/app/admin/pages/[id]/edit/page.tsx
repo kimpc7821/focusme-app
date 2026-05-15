@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createServerSupabase } from "@/lib/supabase/server";
+import type { EssentialInfo } from "@/lib/types";
 import { Editor } from "./Editor";
+import { Step1Essential } from "@/app/me/pages/[id]/submit/Step1Essential";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -76,14 +78,16 @@ export default async function EditPage({ params }: Props) {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Link
-            href={`/p/${page.slug}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-3 py-1.5 rounded-md border border-border-default text-[12px] text-fg hover:bg-bg-soft"
-          >
-            미리보기 →
-          </Link>
+          {page.status === "published" && (
+            <Link
+              href={`/p/${page.slug}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3 py-1.5 rounded-md border border-border-default text-[12px] text-fg hover:bg-bg-soft"
+            >
+              공개 페이지 →
+            </Link>
+          )}
           {task && (
             <Link
               href={`/admin/tasks/${task.id}`}
@@ -95,12 +99,31 @@ export default async function EditPage({ params }: Props) {
         </div>
       </div>
 
+      <details className="mb-5 bg-bg rounded-lg border border-border-default">
+        <summary className="cursor-pointer px-5 py-3 text-[13px] font-medium text-fg list-none flex items-center justify-between hover:bg-bg-soft rounded-lg">
+          <span>페이지 기본 정보 (essential_info)</span>
+          <span className="text-[11px] text-fg-tertiary">▾ 펼치기</span>
+        </summary>
+        <div className="px-5 py-4 border-t border-border-default">
+          <p className="text-[11px] text-fg-tertiary mb-4">
+            상호·전화·주소·영업시간·사업자번호 등 — 시스템·숨김 블록 6개에 자동
+            반영됩니다.
+          </p>
+          <Step1Essential
+            pageId={page.id}
+            initialEssential={(page.essential_info ?? {}) as EssentialInfo}
+            endpoint={`/api/v1/admin/pages/${page.id}/essential-info`}
+          />
+        </div>
+      </details>
+
       <Editor
         pageId={page.id}
         pageSlug={page.slug}
         blocks={blocks ?? []}
         assets={assets ?? []}
         blockTypes={blockTypes ?? []}
+        essentialInfo={(page.essential_info ?? {}) as Record<string, unknown>}
       />
     </div>
   );

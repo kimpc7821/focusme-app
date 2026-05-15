@@ -10,6 +10,7 @@ import {
   TextInput,
   Toggle,
 } from "./inputs";
+import { NumberInput } from "@/components/inputs/NumberInput";
 
 type Layout = "grid_2col" | "grid_3col" | "horizontal_scroll";
 type CtaType = "external_link" | "phone" | "kakao";
@@ -98,11 +99,12 @@ export function ProductCardsForm({
               />
             </Field>
             <div className="grid grid-cols-2 gap-2">
-              <Field label="가격">
-                <TextInput
+              <Field label="가격 (원)" hint="천 단위 콤마 자동 적용">
+                <NumberInput
                   value={p.price ?? ""}
-                  onChange={(v) => update(i, { price: v })}
-                  placeholder="38,000원"
+                  onChange={(raw) => update(i, { price: raw })}
+                  placeholder="38,000"
+                  className="w-full px-3 py-1.5 text-[12px] rounded border border-border-default bg-bg-soft text-fg focus:outline-none focus:border-info"
                 />
               </Field>
               <Field label="URL (스토어)">

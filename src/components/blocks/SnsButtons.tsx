@@ -6,15 +6,32 @@ type SnsType =
   | "youtube"
   | "tiktok"
   | "naver_place"
+  | "naver_cafe"
   | "smartstore"
   | "website"
   | "custom";
 
 interface Item {
-  type: SnsType;
+  type: SnsType | string; // 미지 type 도 허용 (사장님 자유입력 폼 대비) — 렌더 시 custom fallback
   url: string;
   label?: string;
   icon?: string;
+}
+
+const KNOWN_TYPES = new Set<SnsType>([
+  "instagram",
+  "blog",
+  "youtube",
+  "tiktok",
+  "naver_place",
+  "naver_cafe",
+  "smartstore",
+  "website",
+  "custom",
+]);
+
+function toKnownType(t: string): SnsType {
+  return KNOWN_TYPES.has(t as SnsType) ? (t as SnsType) : "custom";
 }
 
 interface Config {
@@ -34,6 +51,7 @@ const DEFAULT_LABEL: Record<SnsType, string> = {
   youtube: "YouTube",
   tiktok: "TikTok",
   naver_place: "네이버 플레이스",
+  naver_cafe: "네이버 카페",
   smartstore: "스마트스토어",
   website: "홈페이지",
   custom: "링크",
@@ -46,6 +64,7 @@ const COLORED_BG: Record<SnsType, string> = {
   youtube: "#FF0000",
   tiktok: "#000000",
   naver_place: "#03C75A",
+  naver_cafe: "#03C75A",
   smartstore: "#03C75A",
   website: "#185FA5",
   custom: "var(--brand-primary)",
@@ -82,6 +101,7 @@ function Icon({ type, size = 20 }: { type: SnsType; size?: number }) {
       );
     case "blog":
     case "naver_place":
+    case "naver_cafe":
     case "smartstore":
       // 네이버 N 마크 단순화
       return (
@@ -121,8 +141,10 @@ export function SnsButtons({ config, content }: Props) {
     <section className="px-5 py-5">
       <div className={layoutClass[config.layout]}>
         {items.map((it, i) => {
+          // 미지 type 이 들어오면 custom 으로 매핑 — 아이콘·색·라벨 fallback
+          const t = toKnownType(it.type);
           const colored = config.iconStyle === "colored";
-          const label = it.label || DEFAULT_LABEL[it.type];
+          const label = it.label || DEFAULT_LABEL[t];
           return (
             <a
               key={i}
@@ -140,8 +162,8 @@ export function SnsButtons({ config, content }: Props) {
                 style={
                   colored
                     ? {
-                        background: COLORED_BG[it.type],
-                        color: it.type === "tiktok" ? "#fff" : "#fff",
+                        background: COLORED_BG[t],
+                        color: t === "tiktok" ? "#fff" : "#fff",
                       }
                     : {
                         background: "var(--color-bg-secondary)",
@@ -149,7 +171,7 @@ export function SnsButtons({ config, content }: Props) {
                       }
                 }
               >
-                <Icon type={it.type} />
+                <Icon type={t} />
               </span>
               {config.showLabels && (
                 <span className="font-medium truncate">{label}</span>

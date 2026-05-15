@@ -5,20 +5,38 @@ import {
   kakaoLoginAction,
   smsRequestAction,
   smsVerifyAction,
+  passwordLoginAction,
   type KakaoLoginState,
   type SmsRequestState,
   type SmsVerifyState,
+  type PasswordLoginState,
 } from "@/app/me/_actions/auth";
 
 type Tab = "kakao" | "sms";
 
+// v2: id(휴대폰)/pw 단일. 아래 둘은 후순위 — true 로 바꾸면 부활.
+//  - 카카오 로그인: v1.1
+//  - SMS 인증: NHN Toast 연동 후
+const ENABLE_KAKAO_LOGIN = false;
+const ENABLE_SMS_LOGIN = false;
+
 const initialKakao: KakaoLoginState = {};
 const initialSmsReq: SmsRequestState = {};
 const initialSmsVerify: SmsVerifyState = {};
+const initialPwLogin: PasswordLoginState = {};
 
 export function LoginPanel({ from }: { from?: string }) {
-  const [tab, setTab] = useState<Tab>("kakao");
+  const [tab, setTab] = useState<Tab>(ENABLE_KAKAO_LOGIN ? "kakao" : "sms");
   const safeFrom = from ?? "/me";
+
+  // 기본: id/pw 폼만. (SMS·카카오 휴면)
+  if (!ENABLE_KAKAO_LOGIN && !ENABLE_SMS_LOGIN) {
+    return (
+      <div>
+        <PasswordForm from={safeFrom} />
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -37,6 +55,64 @@ export function LoginPanel({ from }: { from?: string }) {
         <SmsForm from={safeFrom} />
       )}
     </div>
+  );
+}
+
+function PasswordForm({ from }: { from: string }) {
+  const [state, action, pending] = useActionState(
+    passwordLoginAction,
+    initialPwLogin,
+  );
+
+  const inputCls =
+    "w-full px-3 py-2.5 text-[13px] rounded-md border border-border-default bg-bg-soft text-fg focus:outline-none focus:border-info focus:bg-bg";
+
+  return (
+    <form action={action} className="space-y-3">
+      <input type="hidden" name="from" value={from} />
+      <div>
+        <label className="block text-[11px] text-fg-secondary mb-1">
+          휴대폰 번호 (아이디)
+        </label>
+        <input
+          name="phone"
+          type="tel"
+          inputMode="numeric"
+          required
+          defaultValue={state.phone ?? ""}
+          placeholder="010-1234-5678"
+          className={inputCls}
+        />
+      </div>
+      <div>
+        <label className="block text-[11px] text-fg-secondary mb-1">
+          비밀번호
+        </label>
+        <input
+          name="password"
+          type="password"
+          required
+          autoComplete="current-password"
+          placeholder="발급받은 비밀번호"
+          className={inputCls}
+        />
+      </div>
+      {state.error && (
+        <p className="text-[11px] text-danger bg-danger-soft px-3 py-2 rounded">
+          ⚠ {state.error}
+        </p>
+      )}
+      <button
+        type="submit"
+        disabled={pending}
+        className="w-full py-2.5 rounded-md bg-info text-fg-inverse text-[13px] font-medium hover:opacity-90 disabled:opacity-50"
+      >
+        {pending ? "로그인 중..." : "로그인"}
+      </button>
+      <p className="text-[10px] text-fg-tertiary text-center mt-2 leading-relaxed">
+        비밀번호는 페이지 개설 시 발급됩니다. 분실 시 담당 직원에게 문의하세요.
+      </p>
+    </form>
   );
 }
 

@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createServerSupabase } from "@/lib/supabase/server";
-import { notifyClientChangeRequestUpdate } from "@/lib/notifications/stub";
+import { notifyClientChangeRequestUpdate } from "@/lib/notifications";
 
 const VALID_STATUS = new Set([
   "pending",
@@ -73,17 +73,20 @@ export async function updateChangeRequestAction(
       .eq("id", cr.page_id)
       .maybeSingle();
     let clientPhone: string | null = null;
+    let businessName: string | null = null;
     if (page?.client_id) {
       const { data: client } = await supabase
         .from("clients")
-        .select("phone")
+        .select("phone, business_name")
         .eq("id", page.client_id)
         .maybeSingle();
       clientPhone = client?.phone ?? null;
+      businessName = client?.business_name ?? null;
     }
     await notifyClientChangeRequestUpdate({
       clientPhone,
       pageSlug: page?.slug ?? "?",
+      businessName,
       status,
       quotedCost: cr.quoted_cost,
       note: cr.notes,

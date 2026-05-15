@@ -4,7 +4,7 @@ import {
   requireClientAuth,
 } from "@/lib/auth/guard";
 import { createServerSupabase } from "@/lib/supabase/server";
-import { notifyAdminNewChangeRequest } from "@/lib/notifications/stub";
+import { notifyAdminNewChangeRequest } from "@/lib/notifications";
 
 interface Params {
   params: Promise<{ id: string }>;
@@ -133,9 +133,15 @@ export async function POST(request: Request, { params }: Params) {
   }
 
   // 직원 알림 (NHN Toast 통합 시 알림톡 발송으로 교체).
+  const { data: client } = await supabase
+    .from("clients")
+    .select("business_name")
+    .eq("id", auth.sub)
+    .maybeSingle();
   await notifyAdminNewChangeRequest({
     pageId,
     pageSlug: owns.slug,
+    businessName: client?.business_name ?? null,
     requestType,
     description,
   });

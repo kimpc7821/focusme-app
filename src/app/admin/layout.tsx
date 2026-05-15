@@ -1,6 +1,16 @@
 import Link from "next/link";
 import { getAdminSession } from "@/lib/auth/server-session";
+import { createServerSupabase } from "@/lib/supabase/server";
 import { logoutAction } from "./_actions/auth";
+
+function NavBadge({ count }: { count: number }) {
+  if (count <= 0) return null;
+  return (
+    <span className="ml-1 inline-flex items-center justify-center min-w-[16px] h-[16px] px-1 rounded-full bg-danger text-fg-inverse text-[10px] font-medium leading-none align-middle">
+      {count > 99 ? "99+" : count}
+    </span>
+  );
+}
 
 export default async function AdminLayout({
   children,
@@ -9,6 +19,30 @@ export default async function AdminLayout({
 }) {
   const session = await getAdminSession();
 
+  let taskCount = 0;
+  let changeCount = 0;
+  let inquiryCount = 0;
+  if (session) {
+    const supabase = createServerSupabase();
+    const [tasks, changes, inquiries] = await Promise.all([
+      supabase
+        .from("work_tasks")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "in_review"),
+      supabase
+        .from("change_requests")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "pending"),
+      supabase
+        .from("inquiries")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "new"),
+    ]);
+    taskCount = tasks.count ?? 0;
+    changeCount = changes.count ?? 0;
+    inquiryCount = inquiries.count ?? 0;
+  }
+
   return (
     <div className="min-h-screen bg-bg-soft">
       {session && (
@@ -16,18 +50,12 @@ export default async function AdminLayout({
           <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
             <div className="flex items-center gap-6">
               <Link
-                href="/admin/tasks"
+                href="/admin"
                 className="text-[14px] font-medium text-fg"
               >
                 FocusMe Admin
               </Link>
               <nav className="flex items-center gap-4 text-[13px]">
-                <Link
-                  href="/admin/tasks"
-                  className="text-fg-secondary hover:text-fg"
-                >
-                  작업 큐
-                </Link>
                 <Link
                   href="/admin/clients"
                   className="text-fg-secondary hover:text-fg"
@@ -35,10 +63,18 @@ export default async function AdminLayout({
                   클라이언트
                 </Link>
                 <Link
+                  href="/admin/tasks?status=in_review"
+                  className="text-fg-secondary hover:text-fg"
+                >
+                  작업 큐
+                  <NavBadge count={taskCount} />
+                </Link>
+                <Link
                   href="/admin/change-requests"
                   className="text-fg-secondary hover:text-fg"
                 >
                   변경 요청
+                  <NavBadge count={changeCount} />
                 </Link>
                 <Link
                   href="/admin/reports"
@@ -47,10 +83,11 @@ export default async function AdminLayout({
                   리포트
                 </Link>
                 <Link
-                  href="/admin/pages/new"
+                  href="/admin/inquiries"
                   className="text-fg-secondary hover:text-fg"
                 >
-                  새 페이지
+                  개설 문의
+                  <NavBadge count={inquiryCount} />
                 </Link>
               </nav>
             </div>

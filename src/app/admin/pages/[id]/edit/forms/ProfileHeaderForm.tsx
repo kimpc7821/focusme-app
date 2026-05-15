@@ -3,6 +3,7 @@
 import type { BlockFormProps } from "./types";
 import {
   AssetUrlPicker,
+  EssentialManagedField,
   Field,
   Section,
   Select,
@@ -19,32 +20,25 @@ export function ProfileHeaderForm({
   onConfig,
   onContent,
   assets,
+  essentialInfo,
 }: BlockFormProps) {
   const layout = (config.layout as Layout) ?? "centered";
   const showTagline = (config.showTagline as boolean) ?? true;
   const logoShape = (config.logoShape as LogoShape) ?? "rounded";
   const logoUrl = (content.logoUrl as string) ?? "";
-  const title = (content.title as string) ?? "";
-  const tagline = (content.tagline as string) ?? "";
   const badge = (content.badge as string) ?? "";
 
   return (
     <div className="space-y-6">
       <Section title="콘텐츠">
-        <Field label="브랜드명">
-          <TextInput
-            value={title}
-            onChange={(v) => onContent({ ...content, title: v })}
-            placeholder="노을공방"
-          />
-        </Field>
-        <Field label="한 줄 카피">
-          <TextInput
-            value={tagline}
-            onChange={(v) => onContent({ ...content, tagline: v })}
-            placeholder="하루의 끝, 향으로 안식을"
-          />
-        </Field>
+        <EssentialManagedField
+          label="브랜드명"
+          value={essentialInfo?.businessName}
+        />
+        <EssentialManagedField
+          label="한 줄 카피"
+          value={essentialInfo?.tagline}
+        />
         <Field
           label="로고 이미지 URL"
           hint="비워두면 첫 글자가 자동으로 표시됩니다"

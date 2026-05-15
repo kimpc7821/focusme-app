@@ -42,6 +42,50 @@ export function isValidKoreanPhone(phone: string): boolean {
   return /^010-\d{4}-\d{4}$/.test(phone);
 }
 
+/**
+ * 매장 대표 전화번호 정규화 — 휴대폰·서울 유선·지역 유선 모두 지원.
+ * 사용처: essential_info.phone (인증용 clients.phone 과 분리).
+ *
+ * 지원 포맷:
+ *   - 02-XXX-XXXX  (서울, 9자리)
+ *   - 02-XXXX-XXXX (서울, 10자리)
+ *   - 0XX-XXX-XXXX  (지역·휴대폰, 10자리)
+ *   - 0XX-XXXX-XXXX (지역·휴대폰, 11자리)
+ *
+ * 알 수 없는 길이/패턴은 원본 숫자만 리턴 (저장 가능).
+ */
+export function normalizeBusinessPhone(input: string): string {
+  if (!input) return "";
+  const digits = input.replace(/\D/g, "");
+  if (!digits) return "";
+  if (digits.startsWith("02")) {
+    const rest = digits.slice(2);
+    if (rest.length === 7) {
+      return `02-${rest.slice(0, 3)}-${rest.slice(3)}`;
+    }
+    if (rest.length === 8) {
+      return `02-${rest.slice(0, 4)}-${rest.slice(4)}`;
+    }
+    return digits;
+  }
+  if (digits.startsWith("0") && digits.length >= 10) {
+    const area = digits.slice(0, 3);
+    const rest = digits.slice(3);
+    if (rest.length === 7) {
+      return `${area}-${rest.slice(0, 3)}-${rest.slice(3)}`;
+    }
+    if (rest.length === 8) {
+      return `${area}-${rest.slice(0, 4)}-${rest.slice(4)}`;
+    }
+    return digits;
+  }
+  return digits;
+}
+
+export function isValidBusinessPhone(phone: string): boolean {
+  return /^(02-\d{3,4}-\d{4}|0\d{2}-\d{3,4}-\d{4})$/.test(phone);
+}
+
 function generateCode(): string {
   // 6 자리, 첫 자리 0 가능. 보안상 crypto random 권장.
   const n = Math.floor(Math.random() * 1_000_000);

@@ -1,7 +1,13 @@
 "use client";
 
 import type { BlockFormProps } from "./types";
-import { Field, Section, Select, TextInput } from "./inputs";
+import {
+  EssentialManagedField,
+  Field,
+  Section,
+  Select,
+  TextInput,
+} from "./inputs";
 
 type Size = "medium" | "large";
 type Layout = "fullwidth" | "inline";
@@ -12,28 +18,23 @@ export function KakaoChannelForm({
   content,
   onConfig,
   onContent,
+  essentialInfo,
 }: BlockFormProps) {
   const size = (config.size as Size) ?? "medium";
   const layout = (config.layout as Layout) ?? "fullwidth";
   const channelType = (config.channelType as ChannelType) ?? "plus_friend";
 
-  const url = (content.url as string) ?? "";
   const label = (content.label as string) ?? "";
   const channelId = (content.channelId as string) ?? "";
 
   return (
     <div className="space-y-6">
       <Section title="콘텐츠">
-        <Field
+        <EssentialManagedField
           label="카카오 채널 URL"
-          hint="채널: https://pf.kakao.com/_xxxx · 오픈채팅: https://open.kakao.com/o/xxx"
-        >
-          <TextInput
-            value={url}
-            onChange={(v) => onContent({ ...content, url: v })}
-            placeholder="https://pf.kakao.com/_..."
-          />
-        </Field>
+          value={essentialInfo?.kakaoUrl}
+          note="essential_info.kakaoUrl 자동 주입"
+        />
         <Field label="라벨 (선택)" hint="기본: 카톡 문의">
           <TextInput
             value={label}

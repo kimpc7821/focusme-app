@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth/guard";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { validateSlug } from "@/lib/db/slugs";
+import { notifyAdminNewTask } from "@/lib/notifications";
+import { isValidKoreanPhone, normalizePhone } from "@/lib/auth/sms";
+import { createDefaultBlocksForPage } from "@/lib/db/templates";
 
 interface Body {
   clientId?: string;
@@ -99,13 +102,25 @@ export async function POST(request: Request) {
         { status: 400 },
       );
     }
-    const { phone, businessName, businessType, email } = body.newClient;
-    if (!phone || !businessName || !businessType) {
+    const { phone: phoneRaw, businessName, businessType, email } = body.newClient;
+    if (!phoneRaw || !businessName || !businessType) {
       return NextResponse.json(
         {
           error: {
             code: "VALIDATION_ERROR",
             message: "phone · businessName · businessType 필수",
+          },
+        },
+        { status: 400 },
+      );
+    }
+    const phone = normalizePhone(phoneRaw);
+    if (!isValidKoreanPhone(phone)) {
+      return NextResponse.json(
+        {
+          error: {
+            code: "VALIDATION_ERROR",
+            message: "phone 형식 오류 (010-XXXX-XXXX)",
           },
         },
         { status: 400 },
@@ -199,12 +214,26 @@ export async function POST(request: Request) {
     );
   }
 
+  // 업종 템플릿의 default_blocks 자동 적용.
+  await createDefaultBlocksForPage(supabase, page.id, body.templateType);
+
   // work_tasks INSERT
   const { data: task } = await supabase
     .from("work_tasks")
     .insert({ page_id: page.id, status: "new" })
     .select()
     .single();
+
+  // 직원에게 신규 작업 알림 (TPL_010_NEW_TASK). 실패해도 응답엔 영향 X.
+  try {
+    const businessName =
+      (clientRow?.business_name as string | undefined) ?? slug;
+    const businessType =
+      (clientRow?.business_type as string | undefined) ?? body.templateType;
+    await notifyAdminNewTask({ businessName, businessType });
+  } catch (err) {
+    console.warn("[notify] admin new_task 실패:", err);
+  }
 
   return NextResponse.json(
     {

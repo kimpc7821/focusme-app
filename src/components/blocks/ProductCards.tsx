@@ -14,6 +14,22 @@ const gridClass: Record<ProductCardsConfig["layout"], string> = {
   horizontal_scroll: "flex gap-3 overflow-x-auto snap-x snap-mandatory",
 };
 
+/**
+ * 가격 표시 포맷터.
+ * - "50000" (raw 숫자) → "50,000원"
+ * - "38,000원" (이미 포맷됨) → 그대로
+ * - "문의" 같은 비숫자 텍스트 → 그대로
+ */
+function formatPrice(raw: string): string {
+  if (!raw) return "";
+  const trimmed = raw.trim();
+  const digitsOnly = /^\d+$/.test(trimmed);
+  if (digitsOnly) {
+    return `${Number(trimmed).toLocaleString()}원`;
+  }
+  return trimmed;
+}
+
 interface KindStyle {
   gradient: string;
   icon: React.ReactNode;
@@ -215,7 +231,7 @@ export function ProductCards({ config, content }: Props) {
                 )}
                 {config.showPrice && product.price && (
                   <p className="mt-1 text-[14px] font-semibold text-[var(--brand-primary)]">
-                    {product.price}
+                    {formatPrice(product.price)}
                   </p>
                 )}
               </div>

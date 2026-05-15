@@ -5,6 +5,7 @@ import {
   updateChangeRequestAction,
   type UpdateState,
 } from "../_actions/change-requests";
+import { NumberInput } from "@/components/inputs/NumberInput";
 
 interface Request {
   id: string;
@@ -135,13 +136,10 @@ export function ChangeRequestRow({
               <span className="block text-[10px] text-fg-secondary mb-1">
                 견적 (원, 선택)
               </span>
-              <input
+              <NumberInput
                 name="quotedCost"
-                type="number"
-                min={0}
-                step={10000}
-                defaultValue={request.quoted_cost ?? ""}
-                placeholder="50000"
+                defaultValue={request.quoted_cost}
+                placeholder="50,000"
                 className="w-full px-2 py-1.5 text-[12px] rounded border border-border-default bg-bg-soft text-fg"
               />
             </label>

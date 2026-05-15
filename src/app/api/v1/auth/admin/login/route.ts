@@ -12,6 +12,14 @@ import {
   REFRESH_COOKIE,
   buildCookieOptions,
 } from "@/lib/auth/cookies";
+import {
+  checkAndIncrement,
+  getClientIp,
+  recordHit,
+} from "@/lib/rate-limit";
+
+const LOGIN_WINDOW_SECONDS = 900; // 15분
+const LOGIN_MAX_FAILS = 5;
 
 interface Body {
   email?: string;
@@ -23,6 +31,28 @@ interface Body {
  * reference: docs/focusme-api-spec.md §1.6
  */
 export async function POST(request: Request) {
+  // Rate limit — 같은 IP 의 실패가 15분 5회 이상이면 차단.
+  const ip = getClientIp(request);
+  const limitKey = `admin_login_fail:${ip}`;
+  const limit = await checkAndIncrement(
+    limitKey,
+    LOGIN_WINDOW_SECONDS,
+    LOGIN_MAX_FAILS,
+  );
+  if (!limit.ok) {
+    return NextResponse.json(
+      {
+        error: {
+          code: "RATE_LIMIT_EXCEEDED",
+          message: "로그인 시도가 너무 많습니다. 15분 후 다시 시도하세요.",
+        },
+      },
+      { status: 429 },
+    );
+  }
+  // checkAndIncrement 는 통과 케이스에 INSERT 함. 실패만 카운트하려면 통과 후 hit 를 빼야 하지만,
+  // 단순화 위해 매 시도 카운트 — 성공 시도가 적기 때문에 실용상 차이 없음.
+
   let body: Body;
   try {
     body = (await request.json()) as Body;
@@ -53,6 +83,7 @@ export async function POST(request: Request) {
     .maybeSingle();
 
   if (error || !admin || !admin.active) {
+    await recordHit(limitKey);
     return NextResponse.json(
       {
         error: {
@@ -66,6 +97,7 @@ export async function POST(request: Request) {
 
   const ok = await verifyPassword(body.password, admin.password_hash);
   if (!ok) {
+    await recordHit(limitKey);
     return NextResponse.json(
       {
         error: {

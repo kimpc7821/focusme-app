@@ -1,6 +1,6 @@
 "use server";
 
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { verifyPassword } from "@/lib/auth/passwords";
@@ -15,9 +15,20 @@ import {
   REFRESH_COOKIE,
   buildCookieOptions,
 } from "@/lib/auth/cookies";
+import { checkAndIncrement, recordHit } from "@/lib/rate-limit";
+
+const LOGIN_WINDOW_SECONDS = 900;
+const LOGIN_MAX_FAILS = 5;
 
 export interface LoginState {
   error?: string;
+}
+
+async function getRequestIp(): Promise<string> {
+  const h = await headers();
+  const fwd = h.get("x-forwarded-for");
+  if (fwd) return fwd.split(",")[0]!.trim();
+  return h.get("x-real-ip")?.trim() ?? "unknown";
 }
 
 export async function loginAction(
@@ -32,6 +43,17 @@ export async function loginAction(
     return { error: "이메일과 비밀번호를 입력해주세요" };
   }
 
+  const ip = await getRequestIp();
+  const limitKey = `admin_login_fail:${ip}`;
+  const limit = await checkAndIncrement(
+    limitKey,
+    LOGIN_WINDOW_SECONDS,
+    LOGIN_MAX_FAILS,
+  );
+  if (!limit.ok) {
+    return { error: "로그인 시도가 너무 많습니다. 15분 후 다시 시도하세요." };
+  }
+
   const supabase = createServerSupabase();
   const { data: admin } = await supabase
     .from("admins")
@@ -40,10 +62,12 @@ export async function loginAction(
     .maybeSingle();
 
   if (!admin || !admin.active) {
+    await recordHit(limitKey);
     return { error: "이메일 또는 비밀번호가 일치하지 않습니다" };
   }
   const ok = await verifyPassword(password, admin.password_hash);
   if (!ok) {
+    await recordHit(limitKey);
     return { error: "이메일 또는 비밀번호가 일치하지 않습니다" };
   }
 

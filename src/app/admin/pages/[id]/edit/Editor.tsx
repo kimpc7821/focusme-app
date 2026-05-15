@@ -11,6 +11,7 @@ import {
 import { deleteAssetAction } from "../../../_actions/assets";
 import { hasStructuredForm, StructuredBlockForm } from "./forms";
 import { AiRegenerateModal } from "./AiRegenerateModal";
+import type { EssentialInfo } from "@/lib/types";
 
 interface BlockRow {
   id: string;
@@ -44,6 +45,8 @@ interface Props {
   blocks: BlockRow[];
   assets: AssetRow[];
   blockTypes: BlockTypeMeta[];
+  /** v2: 페이지의 essential_info — 시스템·숨김 블록 read-only 필드 표시용 */
+  essentialInfo?: Record<string, unknown>;
 }
 
 const ASSET_CATEGORIES = [
@@ -60,7 +63,9 @@ export function Editor({
   blocks,
   assets,
   blockTypes,
+  essentialInfo,
 }: Props) {
+  const ei = (essentialInfo ?? {}) as EssentialInfo;
   const [selectedId, setSelectedId] = useState<string | null>(
     blocks[0]?.id ?? null,
   );
@@ -109,6 +114,7 @@ export function Editor({
             pageId={pageId}
             block={selected}
             assets={assets}
+            essentialInfo={ei}
             onDeleted={() => setSelectedId(null)}
           />
         ) : (
@@ -159,51 +165,48 @@ function BlockListItem({
   };
 
   return (
-    <li>
+    <li
+      className={`flex items-center justify-between gap-2 px-2 py-2 rounded text-[12px] ${
+        isSelected
+          ? "bg-info-soft text-info"
+          : "text-fg hover:bg-bg-soft"
+      } ${!block.is_enabled ? "opacity-50" : ""}`}
+    >
       <button
         type="button"
         onClick={onSelect}
-        className={`w-full flex items-center justify-between gap-2 px-2 py-2 rounded text-left text-[12px] ${
-          isSelected
-            ? "bg-info-soft text-info"
-            : "text-fg hover:bg-bg-soft"
-        } ${!block.is_enabled ? "opacity-50" : ""}`}
+        className="flex-1 min-w-0 flex items-center gap-2 text-left bg-transparent"
       >
-        <div className="flex items-center gap-2 min-w-0">
-          <span className="text-fg-tertiary text-[10px] w-5 font-mono shrink-0">
-            {block.sort_order}
+        <span className="text-fg-tertiary text-[10px] w-5 font-mono shrink-0">
+          {block.sort_order}
+        </span>
+        <span className="truncate">{block.block_type}</span>
+        {block.is_system && (
+          <span className="text-[9px] px-1 py-0.5 rounded bg-bg-soft text-fg-tertiary shrink-0">
+            sys
           </span>
-          <span className="truncate">{block.block_type}</span>
-          {block.is_system && (
-            <span className="text-[9px] px-1 py-0.5 rounded bg-bg-soft text-fg-tertiary shrink-0">
-              sys
-            </span>
-          )}
-        </div>
-        <div
-          onClick={(e) => e.stopPropagation()}
-          className="flex items-center gap-0.5 shrink-0"
-        >
-          <button
-            type="button"
-            disabled={pending}
-            onClick={() => move("up")}
-            className="w-5 h-5 rounded hover:bg-bg-muted text-fg-tertiary disabled:opacity-30"
-            aria-label="위로"
-          >
-            ↑
-          </button>
-          <button
-            type="button"
-            disabled={pending}
-            onClick={() => move("down")}
-            className="w-5 h-5 rounded hover:bg-bg-muted text-fg-tertiary disabled:opacity-30"
-            aria-label="아래로"
-          >
-            ↓
-          </button>
-        </div>
+        )}
       </button>
+      <div className="flex items-center gap-0.5 shrink-0">
+        <button
+          type="button"
+          disabled={pending}
+          onClick={() => move("up")}
+          className="w-5 h-5 rounded hover:bg-bg-muted text-fg-tertiary disabled:opacity-30"
+          aria-label="위로"
+        >
+          ↑
+        </button>
+        <button
+          type="button"
+          disabled={pending}
+          onClick={() => move("down")}
+          className="w-5 h-5 rounded hover:bg-bg-muted text-fg-tertiary disabled:opacity-30"
+          aria-label="아래로"
+        >
+          ↓
+        </button>
+      </div>
     </li>
   );
 }
@@ -212,11 +215,13 @@ function BlockEditor({
   pageId,
   block,
   assets,
+  essentialInfo,
   onDeleted,
 }: {
   pageId: string;
   block: BlockRow;
   assets: AssetRow[];
+  essentialInfo: EssentialInfo;
   onDeleted: () => void;
 }) {
   const structured = hasStructuredForm(block.block_type);
@@ -353,6 +358,7 @@ function BlockEditor({
           onConfig={setConfig}
           onContent={setContent}
           assets={assets}
+          essentialInfo={essentialInfo}
         />
       ) : (
         <>

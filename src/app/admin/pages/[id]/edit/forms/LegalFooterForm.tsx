@@ -1,63 +1,48 @@
 "use client";
 
 import type { BlockFormProps } from "./types";
-import { Field, Section, TextInput, Toggle } from "./inputs";
+import {
+  EssentialManagedField,
+  Field,
+  Section,
+  TextInput,
+  Toggle,
+} from "./inputs";
 
 export function LegalFooterForm({
   config,
   content,
   onConfig,
   onContent,
+  essentialInfo,
 }: BlockFormProps) {
   const showBusinessNumber = (config.showBusinessNumber as boolean) ?? true;
   const showEcommerceLicense =
     (config.showEcommerceLicense as boolean) ?? false;
   const showCopyright = (config.showCopyright as boolean) ?? true;
 
-  const businessName = (content.businessName as string) ?? "";
-  const businessNumber = (content.businessNumber as string) ?? "";
-  const ecommerceLicense = (content.ecommerceLicense as string) ?? "";
-  const privacyOfficer = (content.privacyOfficer as string) ?? "";
   const copyrightYear =
     content.copyrightYear !== undefined ? String(content.copyrightYear) : "";
+  const ei = essentialInfo ?? {};
 
   return (
     <div className="space-y-6">
-      <Section title="법적 정보">
-        <Field label="사업자명">
-          <TextInput
-            value={businessName}
-            onChange={(v) => onContent({ ...content, businessName: v })}
-            placeholder="노을공방"
-          />
-        </Field>
-        <Field label="사업자등록번호">
-          <TextInput
-            value={businessNumber}
-            onChange={(v) => onContent({ ...content, businessNumber: v })}
-            placeholder="123-45-67890"
-          />
-        </Field>
-        <Field
+      <Section title="법적 정보 (essential_info)">
+        <EssentialManagedField label="사업자명" value={ei.businessName} />
+        <EssentialManagedField
+          label="사업자등록번호"
+          value={ei.businessNumber}
+        />
+        <EssentialManagedField
           label="통신판매업 신고번호"
-          hint="D2C 업종은 표시 의무"
-        >
-          <TextInput
-            value={ecommerceLicense}
-            onChange={(v) => onContent({ ...content, ecommerceLicense: v })}
-            placeholder="제 2026-서울마포-1234호"
-          />
-        </Field>
-        <Field label="개인정보책임자 (선택)">
-          <TextInput
-            value={privacyOfficer}
-            onChange={(v) => onContent({ ...content, privacyOfficer: v })}
-            placeholder="홍길동"
-          />
-        </Field>
-        <Field
-          label="카피라이트 연도 (비우면 현재 연도)"
-        >
+          value={ei.ecommerceLicense}
+          note="D2C 업종 표시 의무 · essential_info 에서 관리"
+        />
+        <EssentialManagedField
+          label="개인정보책임자"
+          value={ei.privacyOfficer}
+        />
+        <Field label="카피라이트 연도 (비우면 현재 연도)">
           <TextInput
             type="number"
             value={copyrightYear}

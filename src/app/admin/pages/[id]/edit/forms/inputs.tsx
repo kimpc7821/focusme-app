@@ -128,6 +128,29 @@ export function Section({
   );
 }
 
+/**
+ * v2: essential_info 가 관리하는 필드의 read-only 표시.
+ * 현재 essential 값 표시 + "essential_info 에서 관리됩니다" 안내.
+ * reference: docs/focusme-flow-simplification-guide-v2.md §4.4
+ */
+export function EssentialManagedField({
+  label,
+  value,
+  note,
+}: {
+  label: string;
+  value: string | undefined | null;
+  note?: string;
+}) {
+  return (
+    <Field label={label} hint={note ?? "페이지 필수 정보(essential_info)에서 관리됩니다"}>
+      <div className="w-full px-3 py-2 text-[13px] rounded-md border border-border-default bg-bg-muted text-fg-tertiary">
+        {value && value.length > 0 ? value : "(미입력)"}
+      </div>
+    </Field>
+  );
+}
+
 /** 자료 URL 선택용 — 직접 입력 + assets 리스트에서 선택 */
 export function AssetUrlPicker({
   value,

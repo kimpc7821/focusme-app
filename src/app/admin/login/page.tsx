@@ -1,11 +1,11 @@
 import { LoginForm } from "./LoginForm";
 
 interface Props {
-  searchParams: Promise<{ from?: string }>;
+  searchParams: Promise<{ next?: string }>;
 }
 
 export default async function AdminLoginPage({ searchParams }: Props) {
-  const { from } = await searchParams;
+  const { next } = await searchParams;
   return (
     <div className="min-h-screen flex items-center justify-center bg-bg-soft px-4">
       <div className="w-full max-w-sm bg-bg rounded-xl shadow-sm border border-border-default p-7">
@@ -15,7 +15,7 @@ export default async function AdminLoginPage({ searchParams }: Props) {
             직원 로그인
           </p>
         </div>
-        <LoginForm from={from} />
+        <LoginForm from={next} />
       </div>
     </div>
   );

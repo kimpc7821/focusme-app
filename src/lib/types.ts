@@ -45,6 +45,31 @@ export interface Block<TConfig = unknown, TContent = unknown> {
   content: TContent;
 }
 
+/**
+ * v2: 페이지 레벨 source of truth.
+ * 사장님 Step 1 에서 한 번 입력 → 시스템·숨김 블록이 단방향 자동 참조.
+ * reference: docs/focusme-flow-simplification-guide-v2.md §4.2
+ */
+export interface EssentialInfo {
+  businessName?: string;
+  tagline?: string;
+  phone?: string;
+  kakaoUrl?: string;
+  email?: string;
+  hours?: BusinessHours;
+  address?: {
+    full: string;
+    detail?: string;
+    latitude?: number;
+    longitude?: number;
+    sido?: string;
+    sigungu?: string;
+  };
+  businessNumber?: string;
+  ecommerceLicense?: string;
+  privacyOfficer?: string;
+}
+
 export interface Page {
   id: string;
   slug: string;
@@ -53,6 +78,12 @@ export interface Page {
   toneKey: ToneKey;
   businessName: string;
   publishedAt: string;
+  /**
+   * v2: DB 레벨은 NOT NULL DEFAULT '{}' 라 항상 존재.
+   * 단 mock 페이지·v2 적용 이전 데이터 호환을 위해 optional.
+   * 공개 렌더에서는 항상 `?? {}` 로 안전 처리.
+   */
+  essentialInfo?: EssentialInfo;
 }
 
 export interface PageWithBlocks {

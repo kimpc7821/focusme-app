@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth/guard";
 import { createServerSupabase } from "@/lib/supabase/server";
-import { notifyClientChangeRequestUpdate } from "@/lib/notifications/stub";
+import { notifyClientChangeRequestUpdate } from "@/lib/notifications";
 
 interface Params {
   params: Promise<{ id: string }>;
@@ -102,17 +102,20 @@ export async function PATCH(request: Request, { params }: Params) {
       .eq("id", cr.page_id)
       .maybeSingle();
     let clientPhone: string | null = null;
+    let businessName: string | null = null;
     if (page?.client_id) {
       const { data: client } = await supabase
         .from("clients")
-        .select("phone")
+        .select("phone, business_name")
         .eq("id", page.client_id)
         .maybeSingle();
       clientPhone = client?.phone ?? null;
+      businessName = client?.business_name ?? null;
     }
     await notifyClientChangeRequestUpdate({
       clientPhone,
       pageSlug: page?.slug ?? "?",
+      businessName,
       status: body.status,
       quotedCost: cr.quoted_cost,
       note: cr.notes,

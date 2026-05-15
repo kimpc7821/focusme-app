@@ -44,7 +44,25 @@ export default async function MeDashboardPage() {
     .eq("client_id", session.sub)
     .order("created_at", { ascending: false });
 
-  const rows = pages ?? [];
+  const pageRows = pages ?? [];
+
+  // v2 A5: 각 페이지의 work_tasks.status 조회해서 카드 라우팅 분기에 반영.
+  // (client_review → /preview, 그 외 자료 입력 단계 → /submit)
+  const taskByPage = new Map<string, string>();
+  if (pageRows.length > 0) {
+    const { data: tasks } = await supabase
+      .from("work_tasks")
+      .select("page_id, status")
+      .in(
+        "page_id",
+        pageRows.map((p) => p.id),
+      );
+    for (const t of tasks ?? []) {
+      taskByPage.set(t.page_id, t.status);
+    }
+  }
+
+  const rows = pageRows;
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-8">
@@ -75,7 +93,30 @@ export default async function MeDashboardPage() {
         ) : (
           <ul className="space-y-3">
             {rows.map((p) => {
-              const badge = STATUS_BADGE[p.status] ?? STATUS_BADGE.draft;
+              const taskStatus = taskByPage.get(p.id);
+              // v2: 배지·버튼 모두 work_task 상태 기준 — pages.status 는 발행 여부만 반영.
+              // (submit 은 work_tasks 만 in_review 로 바꾸고 pages.status 는 그대로 draft)
+              const effectiveStatus =
+                p.status === "published" || p.status === "archived"
+                  ? p.status
+                  : taskStatus && STATUS_BADGE[taskStatus]
+                    ? taskStatus
+                    : p.status;
+              const badge =
+                STATUS_BADGE[effectiveStatus] ?? STATUS_BADGE.draft;
+              // v2 A5: status별 직접 라우팅 — 카드 상세 페이지 제거
+              const primaryHref =
+                p.status === "published"
+                  ? `/me/pages/${p.id}/edit`
+                  : taskStatus === "client_review"
+                    ? `/me/pages/${p.id}/preview`
+                    : `/me/pages/${p.id}/submit`;
+              const primaryLabel =
+                p.status === "published"
+                  ? "관리"
+                  : taskStatus === "client_review"
+                    ? "미리보기 확인"
+                    : "자료 입력";
               return (
                 <li
                   key={p.id}
@@ -85,7 +126,7 @@ export default async function MeDashboardPage() {
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
                         <Link
-                          href={`/me/pages/${p.id}`}
+                          href={primaryHref}
                           className="text-[15px] font-medium text-fg hover:underline"
                         >
                           /{p.slug}
@@ -114,10 +155,10 @@ export default async function MeDashboardPage() {
                         </a>
                       )}
                       <Link
-                        href={`/me/pages/${p.id}`}
+                        href={primaryHref}
                         className="px-3 py-1.5 rounded-md bg-info text-fg-inverse font-medium hover:opacity-90"
                       >
-                        관리
+                        {primaryLabel}
                       </Link>
                     </div>
                   </div>

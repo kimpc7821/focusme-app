@@ -10,10 +10,11 @@ export interface BlockUpdate {
   id: string;
   content?: Record<string, unknown>;
   config?: Record<string, unknown>;
+  // v2: 비시스템 블록 ON/OFF 자동 반영 허용 (Step 0 토글 + 발행 후 /edit). 시스템 블록은 PATCH 라우트에서 별도 거부.
+  isEnabled?: boolean;
   // 거부 대상 필드 — 들어오면 INVALID_CHANGE.
   blockType?: unknown;
   block_type?: unknown;
-  isEnabled?: unknown;
   is_enabled?: unknown;
   sortOrder?: unknown;
   sort_order?: unknown;
@@ -24,7 +25,6 @@ export interface BlockUpdate {
 const REJECTED_BLOCK_FIELDS = [
   "blockType",
   "block_type",
-  "isEnabled",
   "is_enabled",
   "sortOrder",
   "sort_order",
@@ -52,6 +52,14 @@ export function classifyUpdates(updates: BlockUpdate[]): ClassifyResult {
     }
     for (const key of Object.keys(upd)) {
       if (key === "id" || key === "content") continue;
+
+      // v2: isEnabled 는 boolean 일 때만 허용 (시스템 블록 가드는 PATCH 라우트에서)
+      if (key === "isEnabled") {
+        if (typeof upd.isEnabled !== "boolean") {
+          rejected.push("isEnabled (not boolean)");
+        }
+        continue;
+      }
 
       if (REJECTED_BLOCK_FIELDS.includes(key)) {
         rejected.push(key);
@@ -121,13 +129,17 @@ export async function applyAutoUpdates(
   for (const upd of updates) {
     const { data: existing } = await supabase
       .from("blocks")
-      .select("id, content, config")
+      .select("id, content, config, is_system")
       .eq("id", upd.id)
       .eq("page_id", pageId)
       .maybeSingle();
     if (!existing) continue;
 
-    const patch: { content?: Record<string, unknown>; config?: Record<string, unknown> } = {};
+    const patch: {
+      content?: Record<string, unknown>;
+      config?: Record<string, unknown>;
+      is_enabled?: boolean;
+    } = {};
     if (upd.content) {
       patch.content = deepMerge(
         (existing.content as Record<string, unknown>) ?? {},
@@ -145,6 +157,11 @@ export async function applyAutoUpdates(
       for (const k of Object.keys(upd.config)) {
         appliedPaths.push(`blocks.${upd.id}.config.${k}`);
       }
+    }
+    // v2: 비시스템 블록만 isEnabled 변경 적용 (시스템 블록은 silently skip)
+    if (typeof upd.isEnabled === "boolean" && !existing.is_system) {
+      patch.is_enabled = upd.isEnabled;
+      appliedPaths.push(`blocks.${upd.id}.isEnabled`);
     }
     if (Object.keys(patch).length === 0) continue;
 

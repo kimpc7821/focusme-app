@@ -2,86 +2,18 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { humanizePath } from "./labels";
+import {
+  flattenLeafFields,
+  buildContentPatch,
+  type ContentField as Field,
+} from "@/lib/blocks/content-utils";
+import { humanizePath } from "@/lib/blocks/labels";
 
 export interface EditableBlock {
   id: string;
   blockType: string;
   label: string;
   content: Record<string, unknown>;
-}
-
-/**
- * content JSON 에서 string·number leaf 만 path 와 함께 평탄화.
- * 배열은 인덱스로 path 에 포함 (예: ["slides", 0, "image_url"]).
- * leaf 가 빈 string 인 것도 노출 (사장님이 입력하고 싶을 수 있어서).
- * originalType 보존 — 저장 시 number 필드는 number 로 되돌릴 수 있게.
- */
-interface Field {
-  path: (string | number)[];
-  pathLabel: string; // path.join('.') — drafts map key
-  value: string;
-  originalType: "string" | "number";
-  multiline: boolean;
-}
-
-function flattenLeafFields(
-  obj: unknown,
-  basePath: (string | number)[] = [],
-): Field[] {
-  const out: Field[] = [];
-  if (obj === null || obj === undefined) return out;
-
-  if (typeof obj === "string" || typeof obj === "number") {
-    const value = String(obj);
-    out.push({
-      path: basePath,
-      pathLabel: basePath.join("."),
-      value,
-      originalType: typeof obj as "string" | "number",
-      multiline: value.length > 60 || value.includes("\n"),
-    });
-    return out;
-  }
-  if (Array.isArray(obj)) {
-    obj.forEach((item, i) => {
-      out.push(...flattenLeafFields(item, [...basePath, i]));
-    });
-    return out;
-  }
-  if (typeof obj === "object") {
-    for (const [k, v] of Object.entries(obj as Record<string, unknown>)) {
-      out.push(...flattenLeafFields(v, [...basePath, k]));
-    }
-    return out;
-  }
-  return out;
-}
-
-/**
- * path 기반으로 nested object 패치 재구성.
- * 예: [["slides", 0, "caption"], "새 캡션"] → { slides: [{ caption: "새 캡션" }] }
- */
-function setByPath(
-  target: Record<string, unknown>,
-  path: (string | number)[],
-  value: unknown,
-): void {
-  let cur: Record<string, unknown> | unknown[] = target;
-  for (let i = 0; i < path.length - 1; i++) {
-    const key = path[i];
-    const nextKey = path[i + 1];
-    const wantArray = typeof nextKey === "number";
-    const ck = key as keyof typeof cur;
-    let existing = (cur as Record<string | number, unknown>)[ck as never];
-    if (existing === undefined || existing === null) {
-      existing = wantArray ? [] : {};
-      (cur as Record<string | number, unknown>)[ck as never] = existing as never;
-    }
-    cur = existing as Record<string, unknown> | unknown[];
-  }
-  (cur as Record<string | number, unknown>)[path[path.length - 1] as never] =
-    value as never;
 }
 
 export function EditForm({
@@ -149,14 +81,7 @@ export function EditForm({
     const blocksPayload = Array.from(dirtyByBlock.entries()).map(
       ([bid, fields]) => {
         const block = blocks.find((b) => b.id === bid)!;
-        const merged = structuredClone(block.content) as Record<string, unknown>;
-        for (const f of fields) {
-          const cast =
-            f.originalType === "number" && f.value.trim() !== "" && !isNaN(Number(f.value))
-              ? Number(f.value)
-              : f.value;
-          setByPath(merged, f.path, cast);
-        }
+        const merged = buildContentPatch(block.content, fields);
         return { id: bid, content: merged };
       },
     );

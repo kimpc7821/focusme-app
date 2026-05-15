@@ -33,6 +33,9 @@ import {
   buildCookieOptions,
   buildClearCookieOptions,
 } from "@/lib/auth/cookies";
+import { createServerSupabase } from "@/lib/supabase/server";
+import { hashPassword, verifyPassword } from "@/lib/auth/passwords";
+import { getClientSession } from "@/lib/auth/client-session";
 
 /**
  * /login 페이지의 form action 들.
@@ -170,6 +173,100 @@ export async function smsVerifyAction(
 
   await issueClientSession(client);
   redirect(safeRedirect(from));
+}
+
+// ─── id(휴대폰)/pw 로그인 ─────────────────────────────────────────
+export interface PasswordLoginState {
+  error?: string;
+  phone?: string;
+}
+
+export async function passwordLoginAction(
+  _prev: PasswordLoginState,
+  formData: FormData,
+): Promise<PasswordLoginState> {
+  const phoneRaw = String(formData.get("phone") ?? "").trim();
+  const password = String(formData.get("password") ?? "");
+  const from = String(formData.get("from") ?? "/me");
+
+  if (!phoneRaw || !password) {
+    return { error: "휴대폰 번호와 비밀번호를 입력해주세요", phone: phoneRaw };
+  }
+  const phone = normalizePhone(phoneRaw);
+
+  const supabase = createServerSupabase();
+  const { data: client } = await supabase
+    .from("clients")
+    .select(
+      "id, status, password_hash, must_change_password, business_name",
+    )
+    .eq("phone", phone)
+    .maybeSingle();
+
+  if (!client || !client.password_hash) {
+    return {
+      error: "등록되지 않은 번호이거나 비밀번호가 설정되지 않았습니다",
+      phone,
+    };
+  }
+  const ok = await verifyPassword(password, client.password_hash);
+  if (!ok) {
+    return { error: "비밀번호가 일치하지 않습니다", phone };
+  }
+  if (client.status !== "active") {
+    return { error: "비활성 상태의 계정입니다", phone };
+  }
+
+  await issueClientSession({
+    id: client.id,
+    phone,
+    kakao_id: null,
+    email: null,
+    business_name: client.business_name,
+    business_type: null,
+    status: client.status,
+    payment_status: "",
+  });
+
+  if (client.must_change_password) {
+    redirect(`/change-password?next=${encodeURIComponent(safeRedirect(from))}`);
+  }
+  redirect(safeRedirect(from));
+}
+
+// ─── 비밀번호 변경 (임시 pw → 본인 pw) ────────────────────────────
+export interface ChangePasswordState {
+  error?: string;
+}
+
+export async function changePasswordAction(
+  _prev: ChangePasswordState,
+  formData: FormData,
+): Promise<ChangePasswordState> {
+  const next = String(formData.get("next") ?? "/me");
+  const newPassword = String(formData.get("newPassword") ?? "");
+  const confirm = String(formData.get("confirm") ?? "");
+
+  if (newPassword.length < 8) {
+    return { error: "비밀번호는 8자 이상이어야 합니다" };
+  }
+  if (newPassword !== confirm) {
+    return { error: "비밀번호가 일치하지 않습니다" };
+  }
+
+  const session = await getClientSession();
+  if (!session) redirect("/login");
+
+  const passwordHash = await hashPassword(newPassword);
+  const supabase = createServerSupabase();
+  const { error } = await supabase
+    .from("clients")
+    .update({ password_hash: passwordHash, must_change_password: false })
+    .eq("id", session.sub);
+
+  if (error) return { error: error.message };
+
+  redirect(safeRedirect(next));
 }
 
 // ─── 로그아웃 ──────────────────────────────────────────────────────

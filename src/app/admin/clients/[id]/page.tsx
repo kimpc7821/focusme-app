@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createServerSupabase } from "@/lib/supabase/server";
-import { PaymentForm } from "./PaymentForm";
+import { ResetPasswordButton } from "./ResetPasswordButton";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -24,7 +24,7 @@ export default async function AdminClientDetailPage({ params }: Props) {
   const { data: client } = await supabase
     .from("clients")
     .select(
-      "id, phone, kakao_id, email, business_name, business_type, signup_date, status, payment_status, invoice_number, invoiced_at, paid_at, payment_amount, notes",
+      "id, phone, kakao_id, email, business_name, business_type, signup_date, status, notes",
     )
     .eq("id", id)
     .maybeSingle();
@@ -59,10 +59,10 @@ export default async function AdminClientDetailPage({ params }: Props) {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div className="mb-6">
         <section className="bg-bg rounded-lg border border-border-default p-5">
           <h2 className="text-[11px] uppercase tracking-wider text-fg-tertiary font-medium mb-3">
-            연락처
+            연락처 / 로그인
           </h2>
           <dl className="space-y-2 text-[12px]">
             <Item label="전화">{client.phone ?? "—"}</Item>
@@ -70,20 +70,7 @@ export default async function AdminClientDetailPage({ params }: Props) {
             <Item label="카카오 ID">{client.kakao_id ?? "—"}</Item>
             <Item label="계정 상태">{client.status}</Item>
           </dl>
-        </section>
-
-        <section className="bg-bg rounded-lg border border-border-default p-5">
-          <h2 className="text-[11px] uppercase tracking-wider text-fg-tertiary font-medium mb-3">
-            결제 정보
-          </h2>
-          <PaymentForm
-            id={client.id}
-            paymentStatus={client.payment_status}
-            paymentAmount={client.payment_amount}
-            invoiceNumber={client.invoice_number}
-            invoicedAt={client.invoiced_at}
-            paidAt={client.paid_at}
-          />
+          <ResetPasswordButton clientId={client.id} />
         </section>
       </div>
 

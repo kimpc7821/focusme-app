@@ -45,8 +45,10 @@ function ImgTile({
   image: Image;
   index: number;
   aspect: string;
-  showCaption: boolean;
+  showCaption: boolean | undefined;
 }) {
+  // 명시적 false 아니면 캡션 표시 (기본: 캡션 있으면 보여줌)
+  const shouldShow = showCaption !== false;
   const hasImg = Boolean(image.url);
   return (
     <figure className="overflow-hidden rounded-md">
@@ -71,7 +73,7 @@ function ImgTile({
           </div>
         )}
       </div>
-      {showCaption && image.caption && (
+      {shouldShow && image.caption && (
         <figcaption className="mt-1.5 px-1 text-[11px] text-fg-tertiary">
           {image.caption}
         </figcaption>

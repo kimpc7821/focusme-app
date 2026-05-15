@@ -1,7 +1,14 @@
 "use client";
 
 import type { BlockFormProps } from "./types";
-import { Field, Section, Select, TextInput, Toggle } from "./inputs";
+import {
+  EssentialManagedField,
+  Field,
+  Section,
+  Select,
+  TextInput,
+  Toggle,
+} from "./inputs";
 
 type Position = "right_bottom" | "left_bottom" | "right_middle" | "left_middle";
 type Size = "small" | "medium" | "large";
@@ -19,7 +26,9 @@ export function FloatingCtaForm({
   content,
   onConfig,
   onContent,
+  essentialInfo,
 }: BlockFormProps) {
+  const ei = essentialInfo ?? {};
   const position = (config.position as Position) ?? "right_middle";
   const buttonSize = (config.buttonSize as Size) ?? "medium";
   const showOnScroll = (config.showOnScroll as boolean) ?? false;
@@ -105,24 +114,34 @@ export function FloatingCtaForm({
                 placeholder="카톡 문의"
               />
             </Field>
-            <Field
-              label="값"
-              hint={
-                btn.type === "phone" || btn.type === "message"
-                  ? "전화번호"
-                  : "URL"
-              }
-            >
-              <TextInput
-                value={btn.value}
-                onChange={(v) => update(i, { value: v })}
-                placeholder={
-                  btn.type === "phone" || btn.type === "message"
-                    ? "02-1234-5678"
-                    : "https://pf.kakao.com/_..."
-                }
+            {btn.type === "phone" ? (
+              <EssentialManagedField
+                label="전화번호"
+                value={ei.phone}
+                note="essential_info.phone 자동 주입"
               />
-            </Field>
+            ) : btn.type === "kakao" ? (
+              <EssentialManagedField
+                label="카카오 채널 URL"
+                value={ei.kakaoUrl}
+                note="essential_info.kakaoUrl 자동 주입"
+              />
+            ) : (
+              <Field
+                label="값"
+                hint={btn.type === "message" ? "전화번호" : "URL"}
+              >
+                <TextInput
+                  value={btn.value}
+                  onChange={(v) => update(i, { value: v })}
+                  placeholder={
+                    btn.type === "message"
+                      ? "02-1234-5678"
+                      : "https://example.com"
+                  }
+                />
+              </Field>
+            )}
           </div>
         ))}
         <button

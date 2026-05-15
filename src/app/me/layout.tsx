@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { getClientSession } from "@/lib/auth/client-session";
 import { clientLogoutAction } from "./_actions/auth";
@@ -10,15 +11,19 @@ export default async function MeLayout({
 }) {
   const session = await getClientSession();
   let businessName: string | null = session?.name ?? null;
-  // 세션에 name 이 없을 수도 있음(첫 가입 직후 등) — DB 에서 한 번 더 조회.
-  if (session && !businessName) {
+  // 임시 pw 강제 변경 가드 — must_change_password 면 /me 어디든 진입 차단.
+  // (/change-password 는 /me 밖이라 루프 없음)
+  if (session) {
     const supabase = createServerSupabase();
     const { data } = await supabase
       .from("clients")
-      .select("business_name")
+      .select("business_name, must_change_password")
       .eq("id", session.sub)
       .maybeSingle();
-    businessName = data?.business_name ?? null;
+    if (data?.must_change_password) {
+      redirect("/change-password");
+    }
+    if (!businessName) businessName = data?.business_name ?? null;
   }
 
   return (

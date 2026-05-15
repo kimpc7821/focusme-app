@@ -1,4 +1,10 @@
-import type { Block, BlockType, PageWithBlocks, ToneKey } from "@/lib/types";
+import type {
+  Block,
+  BlockType,
+  EssentialInfo,
+  PageWithBlocks,
+  ToneKey,
+} from "@/lib/types";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { mockPagesBySlug } from "@/lib/mock/noeul";
 
@@ -41,6 +47,9 @@ async function fetchFromSupabase(
 
   if (blocksError) return null;
 
+  const essentialInfo =
+    ((page as { essential_info?: EssentialInfo }).essential_info ?? {}) as EssentialInfo;
+
   return {
     page: {
       id: page.id,
@@ -48,8 +57,12 @@ async function fetchFromSupabase(
       templateType: page.template_type as PageWithBlocks["page"]["templateType"],
       brandColor: page.brand_color,
       toneKey: (page.tone_key ?? "warm_minimal") as ToneKey,
-      businessName: (page as { business_name?: string }).business_name ?? "",
+      businessName:
+        essentialInfo.businessName ??
+        (page as { business_name?: string }).business_name ??
+        "",
       publishedAt: page.published_at ?? page.created_at,
+      essentialInfo,
     },
     blocks: (blocks ?? []).map(
       (b): Block => ({

@@ -86,11 +86,14 @@ export async function requireClientAuth(
 export async function ensureClientOwnsPage(
   clientId: string,
   pageId: string,
-): Promise<{ id: string; slug: string; client_id: string } | NextResponse> {
+): Promise<
+  | { id: string; slug: string; client_id: string; status: string }
+  | NextResponse
+> {
   const supabase = createServerSupabase();
   const { data: page } = await supabase
     .from("pages")
-    .select("id, slug, client_id")
+    .select("id, slug, client_id, status")
     .eq("id", pageId)
     .maybeSingle();
   if (!page) {

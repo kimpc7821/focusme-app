@@ -16,7 +16,7 @@ export default async function MeQrPage({ params }: Props) {
   const supabase = createServerSupabase();
   const { data: page } = await supabase
     .from("pages")
-    .select("id, slug, client_id")
+    .select("id, slug, status, client_id")
     .eq("id", id)
     .maybeSingle();
   if (!page) notFound();
@@ -26,6 +26,9 @@ export default async function MeQrPage({ params }: Props) {
         본인 페이지가 아닙니다.
       </div>
     );
+  }
+  if (page.status !== "published") {
+    redirect(`/me/pages/${id}`);
   }
 
   const { data: codes } = await supabase
