@@ -62,65 +62,68 @@ const DEMOS: DemoPage[] = [
 
 export default function Home() {
   return (
-    <main className="mx-auto max-w-2xl px-6 py-12">
-      <div className="text-center">
-        <h1 className="text-[22px] font-medium leading-tight text-fg">
+    <main className="mx-auto max-w-2xl px-6 py-10">
+      <header className="flex items-center justify-end">
+        <nav className="flex items-center gap-4 text-[12px]">
+          <Link
+            href="/login"
+            className="text-fg-secondary hover:text-fg transition-colors"
+          >
+            client 로그인
+          </Link>
+          <Link
+            href="/inquiry"
+            className="px-3 py-1.5 rounded-md bg-info text-fg-inverse font-medium hover:opacity-90"
+          >
+            개설 문의
+          </Link>
+        </nav>
+      </header>
+
+      <div className="text-center mt-16">
+        <h1 className="text-[26px] font-medium leading-tight text-fg">
           FocusMe
         </h1>
-        <p className="mt-2 text-[13px] text-fg-secondary">
-          사장님 사업에 포커스 — 모바일 마이크로사이트
+        <p className="mt-3 text-[14px] text-fg-secondary">
+          사장님 사업에 포커스 — 한 페이지로 끝내는 모바일 사이트
         </p>
       </div>
 
-      <section className="mt-10">
-        <h2 className="text-[10px] uppercase tracking-wider text-fg-tertiary mb-3 font-medium">
-          데모 페이지 · 7업종 · 5톤 라이브러리
+      <section className="mt-14">
+        <h2 className="text-[12px] text-fg-tertiary mb-4 text-center">
+          이런 페이지를 만들어 드립니다
         </h2>
-        <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           {DEMOS.map((d) => (
             <li key={d.slug}>
               <Link
                 href={`/p/${d.slug}`}
-                className="block px-4 py-3 rounded-md border border-border-default bg-bg hover:bg-bg-soft transition-colors"
+                className="flex items-center gap-3 px-4 py-3.5 rounded-lg border border-border-default bg-bg hover:bg-bg-soft transition-colors"
               >
-                <div className="flex items-center gap-2">
-                  <span
-                    className="w-3 h-3 rounded-full shrink-0"
-                    style={{ background: d.toneColor }}
-                  />
-                  <div className="text-[13px] font-medium text-fg">
+                <span
+                  className="w-2.5 h-2.5 rounded-full shrink-0"
+                  style={{ background: d.toneColor }}
+                />
+                <span className="min-w-0">
+                  <span className="block text-[14px] font-medium text-fg truncate">
                     {d.title}
-                  </div>
-                </div>
-                <div className="mt-1 text-[11px] text-fg-tertiary font-mono pl-5">
-                  {d.businessType} · {d.toneKey} · /p/{d.slug}
-                </div>
+                  </span>
+                  <span className="block mt-0.5 text-[11px] text-fg-tertiary">
+                    {d.businessType}
+                  </span>
+                </span>
               </Link>
             </li>
           ))}
         </ul>
       </section>
 
-      <section className="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-2">
-        <Link
-          href="/login"
-          className="block px-4 py-3 rounded-md border border-border-default bg-bg hover:bg-bg-soft transition-colors"
-        >
-          <div className="text-[13px] font-medium text-fg">사장님 로그인</div>
-          <div className="mt-1 text-[11px] text-fg-tertiary">
-            내 페이지 · 자료 수정 · QR 발급
-          </div>
+      <p className="mt-14 text-center text-[12px] text-fg-tertiary">
+        FocusMe 페이지가 필요하신가요?{" "}
+        <Link href="/inquiry" className="text-info hover:underline">
+          개설 문의하기
         </Link>
-        <Link
-          href="/admin/tasks"
-          className="block px-4 py-3 rounded-md border border-border-default bg-bg hover:bg-bg-soft transition-colors"
-        >
-          <div className="text-[13px] font-medium text-fg">FocusMe Admin</div>
-          <div className="mt-1 text-[11px] text-fg-tertiary">
-            작업 큐 · 페이지 편집기 · AI 재생성
-          </div>
-        </Link>
-      </section>
+      </p>
     </main>
   );
 }

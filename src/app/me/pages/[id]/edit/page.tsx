@@ -99,14 +99,22 @@ export default async function EditPage({ params }: Props) {
             변경은 아래 "큰 변경 의뢰" 로 보내주세요.
           </p>
         </div>
-        <a
-          href={`/p/${page.slug}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="px-3 py-1.5 rounded-md border border-border-default text-fg text-[12px] hover:bg-bg-soft shrink-0"
-        >
-          페이지 보기
-        </a>
+        <div className="flex items-center gap-2 shrink-0">
+          <a
+            href={`/p/${page.slug}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-3 py-1.5 rounded-md border border-border-default text-fg text-[12px] hover:bg-bg-soft"
+          >
+            페이지 보기
+          </a>
+          <Link
+            href={`/me/pages/${id}/qr`}
+            className="px-3 py-1.5 rounded-md border border-border-default text-fg text-[12px] hover:bg-bg-soft"
+          >
+            QR 코드
+          </Link>
+        </div>
       </div>
 
       <section className="mb-10">

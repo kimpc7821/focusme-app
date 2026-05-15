@@ -95,6 +95,12 @@ export default async function AdminLayout({
               <span className="text-fg-tertiary">
                 {session.name} · {session.email}
               </span>
+              <Link
+                href="/admin/settings"
+                className="text-fg-secondary hover:text-fg"
+              >
+                설정
+              </Link>
               <form action={logoutAction}>
                 <button
                   type="submit"

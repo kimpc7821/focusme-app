@@ -145,14 +145,22 @@ export default async function MeDashboardPage() {
                     </div>
                     <div className="flex gap-2 shrink-0 text-[12px]">
                       {p.status === "published" && (
-                        <a
-                          href={`/p/${p.slug}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="px-3 py-1.5 rounded-md border border-border-default text-fg hover:bg-bg-soft"
-                        >
-                          페이지 보기 ↗
-                        </a>
+                        <>
+                          <a
+                            href={`/p/${p.slug}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-3 py-1.5 rounded-md border border-border-default text-fg hover:bg-bg-soft"
+                          >
+                            페이지 보기 ↗
+                          </a>
+                          <Link
+                            href={`/me/pages/${p.id}/qr`}
+                            className="px-3 py-1.5 rounded-md border border-border-default text-fg hover:bg-bg-soft"
+                          >
+                            QR
+                          </Link>
+                        </>
                       )}
                       <Link
                         href={primaryHref}
