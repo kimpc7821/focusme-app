@@ -64,10 +64,10 @@ export default function Home() {
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
       <header className="flex items-center justify-end">
-        <nav className="flex items-center gap-4 text-[12px]">
+        <nav className="flex items-center gap-2 text-[12px]">
           <Link
             href="/login"
-            className="text-fg-secondary hover:text-fg transition-colors"
+            className="px-3 py-1.5 rounded-md border border-border-default text-fg font-medium hover:bg-bg-soft transition-colors"
           >
             client 로그인
           </Link>
@@ -118,12 +118,6 @@ export default function Home() {
         </ul>
       </section>
 
-      <p className="mt-14 text-center text-[12px] text-fg-tertiary">
-        FocusMe 페이지가 필요하신가요?{" "}
-        <Link href="/inquiry" className="text-info hover:underline">
-          개설 문의하기
-        </Link>
-      </p>
     </main>
   );
 }
